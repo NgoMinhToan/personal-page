@@ -27,6 +27,8 @@ export const gridManager = new FarmGridParallaxManager(
   sceneManager.camera,
   portfolioData.projects
 );
+// Ẩn nhóm model nông trại cũ để hiển thị trọn vẹn bức tranh bãi biển nhiệt đới 3D procedural
+gridManager.modelsGroup.visible = false;
 
 // 5. Khởi tạo Bộ tương tác Raycaster (Hover sáng bảng, Click phóng to lấp đầy màn hình, bấm nút ngay trên bảng)
 export const interactionManager = new FarmInteractionManager(
