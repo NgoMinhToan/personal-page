@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { SceneManager } from './core/SceneManager.js';
 import { Lighting } from './core/Lighting.js';
-import { FarmEnvironment } from './core/FarmEnvironment.js';
+import { BeachEnvironment } from './core/BeachEnvironment.js';
 import { FarmGridParallaxManager } from './controllers/FarmGridParallaxManager.js';
 import { FarmInteractionManager } from './controllers/FarmInteractionManager.js';
 import { FarmHUD } from './ui/FarmHUD.js';
@@ -11,7 +11,7 @@ import { portfolioData } from './data/portfolioData.js';
 const canvas = document.getElementById('webgl-canvas');
 export const sceneManager = new SceneManager(canvas);
 export const lighting = new Lighting(sceneManager.scene);
-export const environment = new FarmEnvironment(sceneManager.scene);
+export const environment = new BeachEnvironment(sceneManager.scene);
 
 // 2. Map kỹ năng công nghệ
 const skillsMap = new Map(portfolioData.skills.map((s) => [s.id, s]));
@@ -55,4 +55,4 @@ sceneManager.onUpdate((delta, time) => {
   gridManager.update(delta, time);
 });
 
-console.log('🌾 Creative Farm 3D Portfolio (2x2 Grid + Depth Parallax) initialized successfully!');
+console.log('🏖️ Tropical Beach 3D Portfolio (Procedural Environment & Multi-layer Parallax) initialized successfully!');
