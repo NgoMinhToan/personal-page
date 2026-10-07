@@ -2,7 +2,7 @@
 
 * **Tài liệu:** `docs/superpowers/specs/2026-10-07-manga-3d-portfolio-design.md`
 * **Ngày tạo:** 2026-10-07
-* **Trạng thái:** Chờ phê duyệt (Pending User Review)
+* **Trạng thái:** Đã phê duyệt (Approved)
 * **Tác giả:** Antigravity & User
 
 ---
