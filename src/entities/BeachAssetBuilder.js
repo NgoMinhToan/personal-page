@@ -36,6 +36,45 @@ const monkeySnoutMaterial = new THREE.MeshLambertMaterial({
   flatShading: true
 });
 
+const skinMaterial = new THREE.MeshLambertMaterial({
+  color: 0xfbcfe8,
+  flatShading: true
+});
+
+const swimSuitMaterial = new THREE.MeshLambertMaterial({
+  color: 0x0284c7,
+  flatShading: true
+});
+
+const foamMaterial = new THREE.MeshBasicMaterial({
+  color: 0xffffff
+});
+
+const sandCastleMaterial = new THREE.MeshLambertMaterial({
+  color: 0xfde047,
+  flatShading: true
+});
+
+const redColorMat = new THREE.MeshLambertMaterial({
+  color: 0xef4444,
+  flatShading: true
+});
+
+const whiteColorMat = new THREE.MeshLambertMaterial({
+  color: 0xf8fafc,
+  flatShading: true
+});
+
+const yellowColorMat = new THREE.MeshLambertMaterial({
+  color: 0xeab308,
+  flatShading: true
+});
+
+const woodStickMat = new THREE.MeshLambertMaterial({
+  color: 0x78350f,
+  flatShading: true
+});
+
 export class BeachAssetBuilder {
   /**
    * Tạo mô hình Cây Dừa Nhiệt Đới với thân uốn lượn tự nhiên và tán lá đa giác
@@ -197,6 +236,211 @@ export class BeachAssetBuilder {
       headGroup.rotation.y = Math.sin(time * 1.2 + offset) * 0.2;
       headGroup.rotation.z = Math.sin(time * 1.8 + offset) * 0.1;
     };
+
+    return group;
+  }
+
+  /**
+   * Tạo vận động viên lướt sóng trên ngọn sóng dập dềnh
+   */
+  static createSurfer(options = {}) {
+    const group = new THREE.Group();
+    const boardColor = options.boardColor || 0xf97316;
+
+    // 1. Ván lướt sóng vuốt nhọn hai đầu
+    const boardMat = new THREE.MeshLambertMaterial({ color: boardColor, flatShading: true });
+    const boardGeo = new THREE.BoxGeometry(0.55, 0.08, 2.5);
+    const boardMesh = new THREE.Mesh(boardGeo, boardMat);
+    group.add(boardMesh);
+
+    // Sọc trang trí trên ván
+    const stripeGeo = new THREE.BoxGeometry(0.18, 0.09, 2.3);
+    const stripeMat = new THREE.MeshLambertMaterial({ color: 0x06b6d4, flatShading: true });
+    const stripeMesh = new THREE.Mesh(stripeGeo, stripeMat);
+    group.add(stripeMesh);
+
+    // 2. Nhân vật lướt sóng (tư thế hạ thấp trọng tâm)
+    const surferGroup = new THREE.Group();
+    surferGroup.position.set(0, 0.05, 0.1);
+
+    // Chân gập
+    for (const sign of [-1, 1]) {
+      const legGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.5, 4);
+      const legMesh = new THREE.Mesh(legGeo, skinMaterial);
+      legMesh.position.set(sign * 0.16, 0.22, sign * 0.2);
+      legMesh.rotation.z = -sign * 0.2;
+      surferGroup.add(legMesh);
+    }
+
+    // Quần bơi & Thân
+    const bodyGeo = new THREE.DodecahedronGeometry(0.32, 0);
+    bodyGeo.scale(0.8, 1.2, 0.7);
+    const bodyMesh = new THREE.Mesh(bodyGeo, swimSuitMaterial);
+    bodyMesh.position.set(0, 0.62, 0);
+    surferGroup.add(bodyMesh);
+
+    // Đầu
+    const headGeo = new THREE.DodecahedronGeometry(0.22, 0);
+    const headMesh = new THREE.Mesh(headGeo, skinMaterial);
+    headMesh.position.set(0, 1.05, 0);
+    surferGroup.add(headMesh);
+
+    // Hai tay dang rộng giữ thăng bằng
+    for (const sign of [-1, 1]) {
+      const armGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.65, 4);
+      const armMesh = new THREE.Mesh(armGeo, skinMaterial);
+      armMesh.position.set(sign * 0.42, 0.75, 0);
+      armMesh.rotation.z = -sign * 0.8;
+      armMesh.rotation.x = sign * 0.2;
+      surferGroup.add(armMesh);
+    }
+    group.add(surferGroup);
+
+    // 3. Bọt sóng đuôi ván
+    const wakeGroup = new THREE.Group();
+    wakeGroup.position.set(0, -0.02, -1.35);
+    for (let i = 0; i < 3; i++) {
+      const foamGeo = new THREE.DodecahedronGeometry(0.14 - i * 0.02, 0);
+      const foam = new THREE.Mesh(foamGeo, foamMaterial);
+      foam.position.set((i - 1) * 0.18, 0, -i * 0.2);
+      wakeGroup.add(foam);
+    }
+    group.add(wakeGroup);
+
+    // Cử động nghiêng lượn theo nhịp sóng
+    group.userData.update = (time, waveHeight = 0) => {
+      group.position.y = waveHeight;
+      group.rotation.z = Math.sin(time * 2.2) * 0.18; // Roll
+      group.rotation.x = Math.cos(time * 1.8) * 0.12; // Pitch
+    };
+
+    return group;
+  }
+
+  /**
+   * Tạo người tắm biển bồng bềnh trên phao bơi
+   */
+  static createSwimmer(options = {}) {
+    const group = new THREE.Group();
+    const ringColor = options.ringColor || 0xef4444;
+
+    // 1. Phao bơi tròn Torus
+    const ringMat = new THREE.MeshLambertMaterial({ color: ringColor, flatShading: true });
+    const ringGeo = new THREE.TorusGeometry(0.65, 0.22, 6, 12);
+    const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+    ringMesh.rotation.x = Math.PI / 2;
+    group.add(ringMesh);
+
+    // Các dải sọc trắng tương phản trên phao
+    for (let i = 0; i < 4; i++) {
+      const stripeGeo = new THREE.TorusGeometry(0.66, 0.23, 6, 3, Math.PI / 6);
+      const stripeMesh = new THREE.Mesh(stripeGeo, whiteColorMat);
+      stripeMesh.rotation.x = Math.PI / 2;
+      stripeMesh.rotation.z = (i / 4) * Math.PI * 2;
+      group.add(stripeMesh);
+    }
+
+    // 2. Nửa thân trên & Đầu người bơi
+    const torsoGeo = new THREE.CylinderGeometry(0.22, 0.22, 0.45, 5);
+    const torsoMesh = new THREE.Mesh(torsoGeo, skinMaterial);
+    torsoMesh.position.set(0, 0.15, 0);
+    group.add(torsoMesh);
+
+    const headGeo = new THREE.DodecahedronGeometry(0.24, 0);
+    const headMesh = new THREE.Mesh(headGeo, skinMaterial);
+    headMesh.position.set(0, 0.52, 0);
+    group.add(headMesh);
+
+    // Hai tay tựa lên mép phao
+    for (const sign of [-1, 1]) {
+      const armGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.45, 4);
+      const armMesh = new THREE.Mesh(armGeo, skinMaterial);
+      armMesh.position.set(sign * 0.42, 0.22, 0.2);
+      armMesh.rotation.z = -sign * 0.7;
+      armMesh.rotation.x = 0.4;
+      group.add(armMesh);
+    }
+
+    const baseY = group.position.y;
+    const phaseOffset = options.phaseOffset || Math.random() * Math.PI * 2;
+
+    group.userData.update = (time) => {
+      group.position.y = baseY + Math.sin(time * 2.0 + phaseOffset) * 0.16;
+      group.rotation.z = Math.sin(time * 1.5 + phaseOffset) * 0.08;
+    };
+
+    return group;
+  }
+
+  /**
+   * Tạo cụm trang trí bãi biển: Em bé nghịch cát, lâu đài cát, ô che nắng và quả bóng
+   */
+  static createKidsOnBeach() {
+    const group = new THREE.Group();
+
+    // 1. Em bé chibi ngồi nghịch cát
+    const kidGroup = new THREE.Group();
+    kidGroup.position.set(-0.8, 0, 0);
+
+    const kidBodyGeo = new THREE.DodecahedronGeometry(0.22, 0);
+    const kidBody = new THREE.Mesh(kidBodyGeo, redColorMat);
+    kidBody.position.set(0, 0.2, 0);
+    kidGroup.add(kidBody);
+
+    const kidHeadGeo = new THREE.DodecahedronGeometry(0.18, 0);
+    const kidHead = new THREE.Mesh(kidHeadGeo, skinMaterial);
+    kidHead.position.set(0, 0.45, 0);
+    kidGroup.add(kidHead);
+
+    // Chiếc xẻng xúc cát nhỏ
+    const shovelGeo = new THREE.BoxGeometry(0.08, 0.22, 0.02);
+    const shovel = new THREE.Mesh(shovelGeo, yellowColorMat);
+    shovel.position.set(0.22, 0.1, 0.12);
+    shovel.rotation.z = -0.4;
+    kidGroup.add(shovel);
+
+    group.add(kidGroup);
+
+    // 2. Lâu đài cát
+    const castleGroup = new THREE.Group();
+    castleGroup.position.set(0.1, 0, 0.3);
+
+    for (const [x, z, h] of [[-0.2, 0, 0.45], [0.2, 0, 0.45], [0, 0.15, 0.65]]) {
+      const towerGeo = new THREE.CylinderGeometry(0.12, 0.15, h, 6);
+      const tower = new THREE.Mesh(towerGeo, sandCastleMaterial);
+      tower.position.set(x, h / 2, z);
+      castleGroup.add(tower);
+
+      const roofGeo = new THREE.ConeGeometry(0.15, 0.2, 6);
+      const roof = new THREE.Mesh(roofGeo, sandCastleMaterial);
+      roof.position.set(x, h + 0.1, z);
+      castleGroup.add(roof);
+    }
+    group.add(castleGroup);
+
+    // 3. Ô che nắng nhiệt đới
+    const umbrellaGroup = new THREE.Group();
+    umbrellaGroup.position.set(1.4, 0, -0.6);
+
+    const poleGeo = new THREE.CylinderGeometry(0.05, 0.05, 2.6, 6);
+    const pole = new THREE.Mesh(poleGeo, woodStickMat);
+    pole.position.set(0, 1.3, 0);
+    pole.rotation.z = 0.12;
+    umbrellaGroup.add(pole);
+
+    const canopyGeo = new THREE.ConeGeometry(1.6, 0.7, 8);
+    const canopy = new THREE.Mesh(canopyGeo, redColorMat);
+    canopy.position.set(0.15, 2.45, 0);
+    canopy.rotation.z = 0.12;
+    umbrellaGroup.add(canopy);
+
+    group.add(umbrellaGroup);
+
+    // 4. Quả bóng bãi biển sặc sỡ
+    const ballGeo = new THREE.DodecahedronGeometry(0.26, 1);
+    const ball = new THREE.Mesh(ballGeo, yellowColorMat);
+    ball.position.set(0.8, 0.25, 0.6);
+    group.add(ball);
 
     return group;
   }

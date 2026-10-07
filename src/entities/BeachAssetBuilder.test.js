@@ -31,3 +31,27 @@ monkey.userData.update(1.5);
 assert(!Number.isNaN(monkey.rotation.y), 'Monkey rotation must remain valid after update');
 
 console.log('✓ Palm tree and Monkey tests passed successfully!');
+
+console.log('Testing BeachAssetBuilder: Surfer, Swimmer, and Beach Decor...');
+
+// Test 3: createSurfer
+const surfer = BeachAssetBuilder.createSurfer({ boardColor: 0xf97316 });
+assert(surfer instanceof THREE.Group, 'Surfer must be a THREE.Group');
+assert(typeof surfer.userData.update === 'function', 'Surfer must have update function');
+surfer.userData.update(2.0, 1.2);
+assert(!Number.isNaN(surfer.rotation.x), 'Surfer pitch must not be NaN');
+assert(!Number.isNaN(surfer.rotation.z), 'Surfer roll must not be NaN');
+
+// Test 4: createSwimmer
+const swimmer = BeachAssetBuilder.createSwimmer({ ringColor: 0xef4444 });
+assert(swimmer instanceof THREE.Group, 'Swimmer must be a THREE.Group');
+assert(typeof swimmer.userData.update === 'function', 'Swimmer must have update function');
+swimmer.userData.update(1.0);
+assert(!Number.isNaN(swimmer.position.y), 'Swimmer Y position must not be NaN');
+
+// Test 5: createKidsOnBeach (Kids, Sandcastle, Umbrella, Beachball)
+const decor = BeachAssetBuilder.createKidsOnBeach();
+assert(decor instanceof THREE.Group, 'Beach decor must be a THREE.Group');
+assert(decor.children.length >= 4, 'Beach decor must have kid, castle, umbrella, and ball');
+
+console.log('✓ All BeachAssetBuilder character and decor tests passed!');
