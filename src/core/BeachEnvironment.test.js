@@ -48,3 +48,32 @@ assert(!Number.isNaN(zAfter), 'Wave vertex Z must not be NaN');
 assert(zBefore !== zAfter || zAfter !== 0, 'Wave vertex Z should be calculated dynamically');
 
 console.log('✓ Terrain and Ocean Wave tests passed!');
+
+console.log('Testing BeachEnvironment: Full Asset Population & Parallax Engine...');
+
+// Test 8: Palm trees and monkeys populated
+assert(env.palmTrees.length >= 6, `Must have at least 6 palm trees, got ${env.palmTrees.length}`);
+assert(env.monkeys.length >= 2, `Must have at least 2 monkeys, got ${env.monkeys.length}`);
+
+// Test 9: Surfer and Swimmers populated
+assert(env.surfer instanceof THREE.Group, 'Surfer must exist in scene');
+assert(env.swimmers.length >= 3, `Must have at least 3 swimmers, got ${env.swimmers.length}`);
+
+// Test 10: 3-Layer Parallax Response on Scroll
+const initialFG_Y = env.foregroundGroup.position.y;
+const initialMG_Y = env.midgroundGroup.position.y;
+const initialBG_Y = env.backgroundGroup.position.y;
+
+// Simulate scroll Y = 100
+env.update(0.016, 2.0, 100);
+
+const deltaFG = env.foregroundGroup.position.y - initialFG_Y;
+const deltaMG = env.midgroundGroup.position.y - initialMG_Y;
+const deltaBG = env.backgroundGroup.position.y - initialBG_Y;
+
+// Foreground factor (0.55) > Midground (0.35) > Background (0.12)
+assert(deltaFG > deltaMG, 'Foreground must move faster than Midground');
+assert(deltaMG > deltaBG, 'Midground must move faster than Background');
+assert(!Number.isNaN(deltaFG) && !Number.isNaN(deltaMG) && !Number.isNaN(deltaBG), 'Parallax deltas must not be NaN');
+
+console.log('✓ Full Asset Population and Parallax Engine tests passed!');

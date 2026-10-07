@@ -28,6 +28,14 @@ export class BeachEnvironment {
     this.setupSunlightMist();
     this.setupTerrains();
     this.setupOceanWaveMesh();
+
+    this.palmTrees = [];
+    this.monkeys = [];
+    this.swimmers = [];
+    this.surfer = null;
+
+    this.setupFloraAndFauna();
+    this.setupBeachCharacters();
   }
 
   setupSkyAndFog() {
@@ -163,6 +171,75 @@ export class BeachEnvironment {
     this.midgroundGroup.add(this.waterMesh);
   }
 
+  setupFloraAndFauna() {
+    // 1. Rặng dừa 7 cây phân bố sườn đồi thoai thoải hướng ra biển
+    const palmConfigs = [
+      { x: -18.0, y: -4.0, z: -18.0, height: 6.2, curvature: 0.09, group: this.midgroundGroup },
+      { x: -14.5, y: -3.8, z: -16.0, height: 5.5, curvature: 0.08, group: this.midgroundGroup },
+      { x: -11.0, y: -3.5, z: -15.0, height: 5.8, curvature: 0.10, group: this.midgroundGroup },
+      { x: -8.0,  y: -4.2, z: -14.0, height: 5.0, curvature: 0.07, group: this.foregroundGroup },
+      { x: -16.5, y: -2.5, z: -20.0, height: 6.8, curvature: 0.09, group: this.midgroundGroup },
+      { x: -13.0, y: -2.2, z: -19.0, height: 6.0, curvature: 0.08, group: this.midgroundGroup },
+      { x: -5.0,  y: -4.5, z: -13.0, height: 5.2, curvature: 0.11, group: this.foregroundGroup }
+    ];
+
+    for (const cfg of palmConfigs) {
+      const palm = BeachAssetBuilder.createPalmTree({
+        height: cfg.height,
+        curvature: cfg.curvature,
+        leafCount: 7
+      });
+      palm.position.set(cfg.x, cfg.y, cfg.z);
+      cfg.group.add(palm);
+      this.palmTrees.push(palm);
+    }
+
+    // 2. Chú khỉ tinh nghịch
+    // Chú khỉ 1: Bám thân cây dừa nghiêng
+    const monkey1 = BeachAssetBuilder.createMonkey();
+    monkey1.position.set(-10.5, 0.2, -14.8);
+    monkey1.rotation.y = 0.5;
+    this.midgroundGroup.add(monkey1);
+    this.monkeys.push(monkey1);
+
+    // Chú khỉ 2: Ngồi vắt vẻo trên ngọn cây dừa gần
+    const monkey2 = BeachAssetBuilder.createMonkey();
+    monkey2.position.set(-5.2, 1.2, -12.8);
+    monkey2.rotation.y = -0.4;
+    this.foregroundGroup.add(monkey2);
+    this.monkeys.push(monkey2);
+  }
+
+  setupBeachCharacters() {
+    // 1. Góc trẻ em nghịch cát, lâu đài cát, ô che nắng và bóng bãi biển
+    this.beachDecor = BeachAssetBuilder.createKidsOnBeach();
+    this.beachDecor.position.set(2.5, -4.5, -12.5);
+    this.foregroundGroup.add(this.beachDecor);
+
+    // 2. Nhóm 4 người tắm biển bồng bềnh trên phao bơi
+    const swimmerConfigs = [
+      { x: 7.5,  y: -4.8, z: -15.0, color: 0xef4444, phase: 0 },
+      { x: 10.5, y: -4.8, z: -17.0, color: 0x3b82f6, phase: 1.2 },
+      { x: 8.2,  y: -4.8, z: -19.0, color: 0xeab308, phase: 2.5 },
+      { x: 12.0, y: -4.8, z: -16.0, color: 0x10b981, phase: 3.8 }
+    ];
+
+    for (const cfg of swimmerConfigs) {
+      const swimmer = BeachAssetBuilder.createSwimmer({
+        ringColor: cfg.color,
+        phaseOffset: cfg.phase
+      });
+      swimmer.position.set(cfg.x, cfg.y, cfg.z);
+      this.midgroundGroup.add(swimmer);
+      this.swimmers.push(swimmer);
+    }
+
+    // 3. Vận động viên lướt sóng ngoài khơi
+    this.surfer = BeachAssetBuilder.createSurfer({ boardColor: 0xf97316 });
+    this.surfer.position.set(15.5, -4.2, -18.0);
+    this.midgroundGroup.add(this.surfer);
+  }
+
   updateWaves(time) {
     if (!this.waterGeometry) return;
     const pos = this.waterGeometry.attributes.position;
@@ -187,10 +264,35 @@ export class BeachEnvironment {
   }
 
   update(delta, time, scrollY = 0) {
-    // Cập nhật sóng biển động
+    // 1. Phản hồi Parallax 3 tầng theo nhịp cuộn chuột
+    this.foregroundGroup.position.y = this.baseFG_Y + (scrollY * 0.55);
+    this.foregroundGroup.position.x = Math.sin(scrollY * 0.04) * 0.7;
+
+    this.midgroundGroup.position.y = this.baseMG_Y + (scrollY * 0.35);
+    this.backgroundGroup.position.y = this.baseBG_Y + (scrollY * 0.12);
+
+    // 2. Cập nhật sóng biển động
     this.updateWaves(time);
 
-    // 1. Mây trôi êm ả ngang trời & Parallax cuộn chuột
+    // 3. Cập nhật hoạt ảnh nhân vật
+    if (this.surfer && this.surfer.userData.update) {
+      this.surfer.userData.update(time, -4.2 + Math.sin(time * 2.0) * 0.3);
+    }
+
+    for (const swimmer of this.swimmers) {
+      if (swimmer.userData.update) swimmer.userData.update(time);
+    }
+
+    for (const monkey of this.monkeys) {
+      if (monkey.userData.update) monkey.userData.update(time);
+    }
+
+    for (let i = 0; i < this.palmTrees.length; i++) {
+      const palm = this.palmTrees[i];
+      if (palm.userData.update) palm.userData.update(time, i * 0.6);
+    }
+
+    // 4. Mây trôi êm ả ngang trời & Parallax cuộn chuột
     for (const cloud of this.clouds) {
       cloud.mesh.position.x += cloud.speed * delta;
       if (cloud.mesh.position.x > 75) {
@@ -199,7 +301,7 @@ export class BeachEnvironment {
       cloud.mesh.position.y = cloud.baseY + (scrollY * cloud.parallaxFactor);
     }
 
-    // 2. Hạt bụi nắng lơ lửng
+    // 5. Hạt bụi nắng lơ lửng
     if (this.particles) {
       const positions = this.particles.geometry.attributes.position.array;
       for (let i = 1; i < positions.length; i += 3) {
