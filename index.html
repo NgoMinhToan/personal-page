@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manga 3D Portfolio — Personal Creative Projects</title>
+  <meta name="description" content="Trang web portfolio cá nhân đồ họa 3D toàn màn hình phong cách ô truyện tranh Manga Nhật Bản xây dựng bằng Three.js">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+  <!-- 3D Three.js Full-Screen Canvas -->
+  <canvas id="webgl-canvas"></canvas>
+
+  <!-- Interactive DOM Overlay (HUD, Navigation, Detail Panel) -->
+  <div id="app">
+    <!-- Top HUD Header -->
+    <header id="hud-header" class="hud-header">
+      <div class="hud-brand">
+        <span class="manga-tag">VOL. 2026</span>
+        <h1 class="hud-title">PORTFOLIO // マンガ</h1>
+      </div>
+      <div class="hud-controls-hint">
+        <span class="hint-pill">🖱️ Lăn chuột để cuộn khớp</span>
+        <span class="hint-pill">🔍 Click vào ô để phóng to</span>
+      </div>
+    </header>
+
+    <!-- Detail Overlay Panel (Active in STATE_DETAIL) -->
+    <aside id="detail-overlay" class="detail-overlay hidden" aria-hidden="true"></aside>
+
+    <!-- Bottom HUD & Skill Filter Bar -->
+    <footer id="hud-footer" class="hud-footer">
+      <div id="skill-filter-container" class="skill-filter-container"></div>
+      <div class="page-indicator-container">
+        <span id="page-indicator" class="page-indicator">PAGE 01 / 02</span>
+      </div>
+    </footer>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
