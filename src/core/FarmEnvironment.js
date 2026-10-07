@@ -7,6 +7,10 @@ export class FarmEnvironment {
     this.trees = [];
     this.pollenParticles = null;
 
+    this.envGroup = new THREE.Group();
+    this.envGroup.position.y = -4.8;
+    this.scene.add(this.envGroup);
+
     this.setupSkyAndFog();
     this.setupTerrain();
     this.setupClouds();
@@ -46,7 +50,7 @@ export class FarmEnvironment {
 
     this.terrain = new THREE.Mesh(geo, mat);
     this.terrain.receiveShadow = true;
-    this.scene.add(this.terrain);
+    this.envGroup.add(this.terrain);
 
     // Đường mòn đất nung / đá sỏi uốn lượn
     const pathGeo = new THREE.PlaneGeometry(100, 4, 30, 2);
@@ -57,9 +61,9 @@ export class FarmEnvironment {
       flatShading: true
     });
     const pathMesh = new THREE.Mesh(pathGeo, pathMat);
-    pathMesh.position.set(0, -1.45, 0);
+    pathMesh.position.set(0, 0.05, 0);
     pathMesh.rotation.y = 0.15;
-    this.scene.add(pathMesh);
+    this.envGroup.add(pathMesh);
   }
 
   setupClouds() {
@@ -125,9 +129,9 @@ export class FarmEnvironment {
       leaves.position.y = 3.6;
       tree.add(leaves);
 
-      tree.position.set(x, -1.5, z);
+      tree.position.set(x, 0, z);
       tree.scale.setScalar(0.8 + Math.random() * 0.5);
-      this.scene.add(tree);
+      this.envGroup.add(tree);
       this.trees.push(tree);
     }
 
@@ -141,10 +145,10 @@ export class FarmEnvironment {
       const flower = new THREE.Mesh(flowerGeo, flowerMat);
       flower.position.set(
         (Math.random() - 0.5) * 45,
-        -1.35,
+        0.1,
         (Math.random() - 0.5) * 45
       );
-      this.scene.add(flower);
+      this.envGroup.add(flower);
     }
   }
 
@@ -172,7 +176,10 @@ export class FarmEnvironment {
     this.scene.add(this.pollenParticles);
   }
 
-  update(delta, time) {
+  update(delta, time, scrollY = 0) {
+    // 0. Parallax nhẹ nhàng cho địa hình nền đồi cỏ phía sau
+    this.envGroup.position.y = -4.8 + (scrollY * 0.12);
+
     // 1. Mây trôi êm ả
     for (const cloud of this.clouds) {
       cloud.mesh.position.x += cloud.speed * delta;

@@ -34,8 +34,8 @@ export class FarmDetailModal {
     this.container.innerHTML = `
       <div class="farm-modal-card">
         <!-- NÚT QUAY LUI TO RÕ RÀNG (BACK HANDLE) -->
-        <button id="btn-farm-back" class="btn-farm-back" aria-label="Quay về Nông trại">
-          <span>◀ QUAY VỀ NÔNG TRẠI</span>
+        <button id="btn-farm-back" class="btn-farm-back" aria-label="Quay về Lưới 2x2">
+          <span>◀ QUAY VỀ LƯỚI 2X2</span>
         </button>
 
         <div class="farm-modal-header">

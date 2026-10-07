@@ -16,7 +16,8 @@ export class SceneManager {
       0.1,
       1000
     );
-    this.camera.position.set(0, 7.5, 18);
+    this.camera.position.set(0, 0, 11.5);
+    this.camera.lookAt(0, 0, 0);
     this.scene.add(this.camera);
 
     // 3. Renderer tối ưu bóng đổ và màu sắc chân thực

@@ -51,12 +51,12 @@ export class FarmInteractionManager {
 
     if (intersects.length > 0) {
       const hitObj = intersects[0].object;
-      const sign = hitObj.userData.parentSign;
+      const board = hitObj.userData.parentBoard || hitObj.userData.parentSign;
 
-      if (sign) {
-        if (this.hoveredSign !== sign) {
+      if (board) {
+        if (this.hoveredSign !== board) {
           if (this.hoveredSign) this.hoveredSign.setHover(false);
-          this.hoveredSign = sign;
+          this.hoveredSign = board;
           this.hoveredSign.setHover(true);
           document.body.style.cursor = 'pointer';
         }
@@ -78,9 +78,9 @@ export class FarmInteractionManager {
 
     if (intersects.length > 0) {
       const hitObj = intersects[0].object;
-      const sign = hitObj.userData.parentSign;
-      if (sign) {
-        this.onSelectSign(sign);
+      const board = hitObj.userData.parentBoard || hitObj.userData.parentSign;
+      if (board) {
+        this.onSelectSign(board);
       }
     }
   }
