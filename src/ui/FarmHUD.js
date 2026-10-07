@@ -14,17 +14,11 @@ export class FarmHUD {
       <!-- Header Nông Trại Trên Cùng -->
       <header class="farm-top-nav">
         <div class="farm-logo">
-          <span class="farm-logo-icon">🏡</span>
+          <span class="farm-logo-icon">🌴</span>
           <div class="farm-logo-text">
-            <span class="farm-logo-main">CREATIVE FARM 3D</span>
+            <span class="farm-logo-main">CREATIVE PORTFOLIO 3D</span>
             <span class="farm-logo-sub">Dự Án Cá Nhân & Kỹ Năng</span>
           </div>
-        </div>
-
-        <div class="farm-nav-hint">
-          <span>🖱️ <b>Lăn chuột:</b> Dạo quanh thung lũng</span>
-          <span>🖐️ <b>Kéo chuột:</b> Xoay ngắm 360°</span>
-          <span>✨ <b>Click bảng gỗ:</b> Xem chi tiết</span>
         </div>
       </header>
 

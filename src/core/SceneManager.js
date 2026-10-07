@@ -7,7 +7,7 @@ export class SceneManager {
 
     // 1. Scene với bầu trời xanh nắng ấm
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0xa0e1ed);
+    this.scene.background = new THREE.Color(0x38bdf8);
 
     // 2. Camera góc phối cảnh rộng rãi
     this.camera = new THREE.PerspectiveCamera(

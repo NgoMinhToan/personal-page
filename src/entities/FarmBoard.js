@@ -22,37 +22,7 @@ export class FarmBoard extends THREE.Group {
     const boardHeight = 2.15;
     const boardDepth = 0.12;
 
-    // 2. Dây thừng treo bảng mộc mạc phía trên
-    const ropeMat = new THREE.MeshStandardMaterial({
-      color: 0x5c4033,
-      roughness: 0.9
-    });
-    const ropeGeo = new THREE.CylinderGeometry(0.035, 0.035, 0.7, 6);
-
-    const ropeL = new THREE.Mesh(ropeGeo, ropeMat);
-    ropeL.position.set(-1.25, boardHeight / 2 + 0.35, 0);
-    this.boardGroup.add(ropeL);
-
-    const ropeR = new THREE.Mesh(ropeGeo, ropeMat);
-    ropeR.position.set(1.25, boardHeight / 2 + 0.35, 0);
-    this.boardGroup.add(ropeR);
-
-    // Móc treo kim loại đồng cổ
-    const ringMat = new THREE.MeshStandardMaterial({
-      color: 0xd97706,
-      roughness: 0.4,
-      metalness: 0.6
-    });
-    const ringGeo = new THREE.TorusGeometry(0.09, 0.03, 6, 12);
-    const ringL = new THREE.Mesh(ringGeo, ringMat);
-    ringL.position.set(-1.25, boardHeight / 2 + 0.7, 0);
-    this.boardGroup.add(ringL);
-
-    const ringR = new THREE.Mesh(ringGeo, ringMat);
-    ringR.position.set(1.25, boardHeight / 2 + 0.7, 0);
-    this.boardGroup.add(ringR);
-
-    // 3. Khung gỗ sồi 3D bo góc
+    // 2. Khung gỗ sồi 3D bo cạnh mộc mạc (Đã bỏ quai treo theo yêu cầu)
     const frameGeo = new THREE.BoxGeometry(boardWidth, boardHeight, boardDepth);
     const woodMat = new THREE.MeshStandardMaterial({
       color: 0x8b5a2b, // Màu gỗ sồi già
@@ -63,7 +33,7 @@ export class FarmBoard extends THREE.Group {
     this.frameMesh.castShadow = true;
     this.boardGroup.add(this.frameMesh);
 
-    // 4. Mặt bảng Canvas vẽ tay mộc mạc độ nét cao
+    // 3. Mặt bảng Canvas vẽ tay mộc mạc độ nét cao
     this.texture = this.createSignCanvasTexture();
     const surfaceGeo = new THREE.PlaneGeometry(boardWidth - 0.14, boardHeight - 0.14);
     const surfaceMat = new THREE.MeshBasicMaterial({
@@ -74,23 +44,11 @@ export class FarmBoard extends THREE.Group {
     this.surfaceMesh.position.z = boardDepth / 2 + 0.01;
     this.boardGroup.add(this.surfaceMesh);
 
-    // 5. Hào quang nắng vàng khi hover (Golden Glow Aura)
-    const glowGeo = new THREE.PlaneGeometry(boardWidth + 0.45, boardHeight + 0.45);
-    const glowMat = new THREE.MeshBasicMaterial({
-      color: 0xfef08a,
-      transparent: true,
-      opacity: 0,
-      side: THREE.DoubleSide
-    });
-    this.glowMesh = new THREE.Mesh(glowGeo, glowMat);
-    this.glowMesh.position.z = -0.03;
-    this.boardGroup.add(this.glowMesh);
-
     this.add(this.boardGroup);
 
     // Metadata cho Raycaster tương tác
-    this.surfaceMesh.userData = { parentBoard: this, project: this.project };
-    this.frameMesh.userData = { parentBoard: this, project: this.project };
+    this.surfaceMesh.userData = { parentBoard: this, parentSign: this, project: this.project };
+    this.frameMesh.userData = { parentBoard: this, parentSign: this, project: this.project };
   }
 
   createSignCanvasTexture() {
@@ -113,15 +71,10 @@ export class FarmBoard extends THREE.Group {
       ctx.stroke();
     }
 
-    // Viền khung gỗ khắc chìm đậm đà
+    // Viền khung gỗ khắc chìm mộc mạc
     ctx.strokeStyle = '#78350f';
     ctx.lineWidth = 14;
     ctx.strokeRect(12, 12, 696, 406);
-
-    // Viền chỉ trang trí bên trong
-    ctx.strokeStyle = '#b45309';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(24, 24, 672, 382);
 
     // 4 Đinh tán kim loại ở 4 góc
     ctx.fillStyle = '#451a03';
@@ -135,75 +88,67 @@ export class FarmBoard extends THREE.Group {
     // Badge số thứ tự dự án (VD: 🌾 DỰ ÁN #01)
     const padIndex = String(this.index + 1).padStart(2, '0');
     ctx.fillStyle = '#b45309';
-    ctx.font = '700 20px "Outfit", sans-serif';
+    ctx.font = '700 22px "Outfit", sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText(`${this.project.iconEmoji || '🌾'} DỰ ÁN #${padIndex}`, 48, 65);
+    ctx.fillText(`${this.project.iconEmoji || '🌾'} DỰ ÁN #${padIndex}`, 48, 70);
 
     // Tiêu đề Dự án
     ctx.fillStyle = '#451a03';
-    ctx.font = '900 36px "Outfit", sans-serif';
-    ctx.fillText(this.project.title, 48, 115);
+    ctx.font = '900 38px "Outfit", sans-serif';
+    ctx.fillText(this.project.title, 48, 125);
 
-    // Phụ đề mô tả công trình nông trại
+    // Phụ đề mô tả công trình
     ctx.fillStyle = '#92400e';
-    ctx.font = '600 21px "Outfit", sans-serif';
-    ctx.fillText(this.project.subtitle || 'Công trình Nông trại 3D', 48, 150);
+    ctx.font = '600 22px "Outfit", sans-serif';
+    ctx.fillText(this.project.subtitle || 'Công trình 3D', 48, 165);
 
     // Đường kẻ phân cách gỗ
     ctx.strokeStyle = '#d97706';
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.moveTo(48, 175);
-    ctx.lineTo(672, 175);
+    ctx.moveTo(48, 192);
+    ctx.lineTo(672, 192);
     ctx.stroke();
 
-    // Thẻ Tech Skills nông trại
+    // Thẻ Tech Skills
     let tagX = 48;
     const skills = this.project.skills || [];
     skills.forEach((skill) => {
       const text = '#' + skill.toUpperCase();
-      ctx.font = '700 17px "Outfit", sans-serif';
+      ctx.font = '700 18px "Outfit", sans-serif';
       const textWidth = ctx.measureText(text).width;
 
       ctx.fillStyle = '#15803d';
-      ctx.fillRect(tagX, 202, textWidth + 24, 36);
+      ctx.fillRect(tagX, 218, textWidth + 24, 38);
       ctx.fillStyle = '#ffffff';
-      ctx.fillText(text, tagX + 12, 226);
+      ctx.fillText(text, tagX + 12, 243);
 
       tagX += textWidth + 34;
     });
 
-    // Mô tả vắn tắt 2 dòng mộc mạc
+    // Mô tả dự án rõ ràng, thoáng đãng (Đã bỏ toàn bộ dòng hướng dẫn click / scroll)
     ctx.fillStyle = '#5c3a21';
-    ctx.font = '500 18px "Outfit", sans-serif';
+    ctx.font = '500 20px "Outfit", sans-serif';
     const desc = this.project.description || '';
     const descWords = desc.split(' ');
     let line1 = '';
     let line2 = '';
+    let line3 = '';
     for (let word of descWords) {
-      if ((line1 + ' ' + word).length < 52) {
+      if ((line1 + ' ' + word).length < 50) {
         line1 += (line1 ? ' ' : '') + word;
-      } else if ((line2 + ' ' + word).length < 55) {
+      } else if ((line2 + ' ' + word).length < 52) {
         line2 += (line2 ? ' ' : '') + word;
+      } else if ((line3 + ' ' + word).length < 52) {
+        line3 += (line3 ? ' ' : '') + word;
       }
     }
-    if (descWords.length > (line1.split(' ').length + line2.split(' ').length)) {
-      line2 += '...';
+    if (descWords.length > (line1.split(' ').length + line2.split(' ').length + line3.split(' ').length)) {
+      line3 += '...';
     }
-    ctx.fillText(line1, 48, 280);
-    if (line2) ctx.fillText(line2, 48, 308);
-
-    // Nút kêu gọi hành động mộc mạc
-    ctx.fillStyle = '#f59e0b';
-    ctx.fillRect(48, 345, 624, 48);
-    ctx.strokeStyle = '#b45309';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(48, 345, 624, 48);
-
-    ctx.fillStyle = '#451a03';
-    ctx.font = '800 20px "Outfit", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('✨ Bấm vào đây để Khám Phá Chi Tiết ✨', 360, 376);
+    ctx.fillText(line1, 48, 305);
+    if (line2) ctx.fillText(line2, 48, 340);
+    if (line3) ctx.fillText(line3, 48, 375);
 
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
@@ -227,45 +172,36 @@ export class FarmBoard extends THREE.Group {
     if (this.isDetailMode || this.isHovered === isHovered) return;
     this.isHovered = isHovered;
 
-    // Báo hiệu cho model 3D nông trại tương ứng phản hồi
+    // Báo hiệu cho model 3D tương ứng phản hồi
     if (this.associatedModel && this.associatedModel.onHover) {
       this.associatedModel.onHover(isHovered);
     }
 
+    // Phản hồi hover êm ái: CHỈ SCALE NHẸ & NHẤC VỀ PHÍA TRƯỚC, KHÔNG CÓ BORDER GLOW
     if (isHovered) {
-      gsap.to(this.glowMesh.material, {
-        opacity: 0.95,
+      gsap.to(this.boardGroup.scale, {
+        x: 1.05,
+        y: 1.05,
+        z: 1.05,
         duration: 0.25,
         ease: 'power2.out'
       });
-      gsap.to(this.boardGroup.scale, {
-        x: 1.08,
-        y: 1.08,
-        z: 1.08,
-        duration: 0.3,
-        ease: 'back.out(2)'
-      });
       gsap.to(this.boardGroup.position, {
-        z: 0.45,
-        duration: 0.3,
+        z: 0.35,
+        duration: 0.25,
         ease: 'power2.out'
       });
     } else {
-      gsap.to(this.glowMesh.material, {
-        opacity: 0,
-        duration: 0.3,
-        ease: 'power2.out'
-      });
       gsap.to(this.boardGroup.scale, {
         x: 1.0,
         y: 1.0,
         z: 1.0,
-        duration: 0.3,
+        duration: 0.25,
         ease: 'power2.out'
       });
       gsap.to(this.boardGroup.position, {
         z: 0,
-        duration: 0.3,
+        duration: 0.25,
         ease: 'power2.out'
       });
     }

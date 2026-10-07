@@ -4,204 +4,146 @@ export class FarmEnvironment {
   constructor(scene) {
     this.scene = scene;
     this.clouds = [];
-    this.trees = [];
-    this.pollenParticles = null;
-
-    this.envGroup = new THREE.Group();
-    this.envGroup.position.y = -4.8;
-    this.scene.add(this.envGroup);
+    this.particles = null;
 
     this.setupSkyAndFog();
-    this.setupTerrain();
-    this.setupClouds();
-    this.setupNatureDetails();
-    this.setupFloatingPollen();
+    this.setupBeachBackdrop();
+    this.setupAbundantClouds();
+    this.setupSunlightMist();
   }
 
   setupSkyAndFog() {
-    // Sương mù đường chân trời nông trại màu đồng cỏ ấm
-    this.scene.fog = new THREE.FogExp2(0xcae8d5, 0.018);
+    // Trời xanh thẳm nhiệt đới rực rỡ nắng vàng (Brilliant Deep Azure Sky)
+    this.scene.background = new THREE.Color(0x38bdf8);
+    this.scene.fog = new THREE.FogExp2(0x7dd3fc, 0.009);
   }
 
-  setupTerrain() {
-    // Mặt đất đồi cỏ uốn lượn mộc mạc
-    const geo = new THREE.PlaneGeometry(140, 140, 40, 40);
-    geo.rotateX(-Math.PI / 2);
+  setupBeachBackdrop() {
+    // 1. Nhóm chứa bức tranh bãi biển chuyển động Parallax mạnh mẽ khi cuộn
+    this.beachGroup = new THREE.Group();
+    this.scene.add(this.beachGroup);
 
-    // Tạo độ nhấp nhô tự nhiên cho đồi cỏ
-    const pos = geo.attributes.position;
-    for (let i = 0; i < pos.count; i++) {
-      const x = pos.getX(i);
-      const z = pos.getZ(i);
-      // Giữ vùng trung tâm phẳng phao để cắm các công trình dự án
-      const distFromCenter = Math.sqrt(x * x + z * z);
-      const flattenFactor = Math.min(1, Math.max(0, (distFromCenter - 12) / 25));
-      const elevation = (Math.sin(x * 0.12) * Math.cos(z * 0.12) * 2.8 + Math.sin(x * 0.05) * 2.0) * flattenFactor;
-      pos.setY(i, elevation - 1.5);
-    }
-    geo.computeVertexNormals();
+    // 2. Load bức tranh bãi biển anime tuyệt đẹp
+    const loader = new THREE.TextureLoader();
+    loader.load('/beach_paradise.jpg', (texture) => {
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.minFilter = THREE.LinearFilter;
+      texture.magFilter = THREE.LinearFilter;
 
-    const mat = new THREE.MeshStandardMaterial({
-      color: 0x62af31, // Xanh cỏ tươi
-      roughness: 0.85,
-      metalness: 0.05,
-      flatShading: true
+      // Kích thước chuẩn tỉ lệ 16:9 bao trọn tầm nhìn camera
+      const width = 58;
+      const height = 32.6;
+      const geo = new THREE.PlaneGeometry(width, height);
+      const mat = new THREE.MeshBasicMaterial({
+        map: texture,
+        depthWrite: false
+      });
+
+      this.beachMesh = new THREE.Mesh(geo, mat);
+      this.baseBackdropY = -2.0;
+      this.baseBackdropX = 0;
+      this.beachMesh.position.set(0, this.baseBackdropY, -18.0);
+      this.beachGroup.add(this.beachMesh);
     });
-
-    this.terrain = new THREE.Mesh(geo, mat);
-    this.terrain.receiveShadow = true;
-    this.envGroup.add(this.terrain);
-
-    // Đường mòn đất nung / đá sỏi uốn lượn
-    const pathGeo = new THREE.PlaneGeometry(100, 4, 30, 2);
-    pathGeo.rotateX(-Math.PI / 2);
-    const pathMat = new THREE.MeshStandardMaterial({
-      color: 0xd9b382, // Đất sỏi vàng ấm
-      roughness: 0.9,
-      flatShading: true
-    });
-    const pathMesh = new THREE.Mesh(pathGeo, pathMat);
-    pathMesh.position.set(0, 0.05, 0);
-    pathMesh.rotation.y = 0.15;
-    this.envGroup.add(pathMesh);
   }
 
-  setupClouds() {
-    // Những đám mây low-poly bồng bềnh
+  setupAbundantClouds() {
+    // Tạo rất nhiều đám mây trắng bồng bềnh lơ lửng khắp bầu trời xanh
     const cloudMat = new THREE.MeshStandardMaterial({
       color: 0xffffff,
-      roughness: 0.6,
+      roughness: 0.5,
       flatShading: true
     });
 
-    for (let i = 0; i < 12; i++) {
+    // 32 cụm mây đa tầng độ sâu
+    for (let i = 0; i < 32; i++) {
       const cloudGroup = new THREE.Group();
-      const numPuffs = 4 + Math.floor(Math.random() * 3);
+      const numPuffs = 4 + Math.floor(Math.random() * 4);
 
       for (let j = 0; j < numPuffs; j++) {
-        const r = 1.2 + Math.random() * 1.4;
+        const r = 1.3 + Math.random() * 1.6;
         const puffGeo = new THREE.DodecahedronGeometry(r, 1);
         const puff = new THREE.Mesh(puffGeo, cloudMat);
         puff.position.set(
-          (j - numPuffs / 2) * 1.5 + (Math.random() - 0.5) * 0.8,
-          (Math.random() - 0.5) * 0.6,
+          (j - numPuffs / 2) * 1.6 + (Math.random() - 0.5) * 0.8,
+          (Math.random() - 0.5) * 0.7,
           (Math.random() - 0.5) * 0.8
         );
         cloudGroup.add(puff);
       }
 
-      cloudGroup.position.set(
-        (Math.random() - 0.5) * 100,
-        14 + Math.random() * 8,
-        (Math.random() - 0.5) * 80
-      );
+      const baseX = (Math.random() - 0.5) * 120;
+      const baseY = 8 + Math.random() * 22;
+      const baseZ = -30 + Math.random() * 26;
 
+      cloudGroup.position.set(baseX, baseY, baseZ);
       this.scene.add(cloudGroup);
+
       this.clouds.push({
         mesh: cloudGroup,
-        speed: 0.8 + Math.random() * 1.2
+        baseX: baseX,
+        baseY: baseY,
+        speed: 0.9 + Math.random() * 1.6,
+        parallaxFactor: 0.18 + Math.random() * 0.28 // Parallax riêng biệt cho từng tầng mây
       });
     }
   }
 
-  setupNatureDetails() {
-    // Tạo cụm cây và hoa rực rỡ ở rìa trang trại
-    const trunkMat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b, roughness: 0.9 });
-    const leavesMat1 = new THREE.MeshStandardMaterial({ color: 0x2e8540, roughness: 0.8, flatShading: true });
-    const leavesMat2 = new THREE.MeshStandardMaterial({ color: 0x48a860, roughness: 0.8, flatShading: true });
-
-    for (let i = 0; i < 18; i++) {
-      const angle = (i / 18) * Math.PI * 2;
-      const radius = 24 + Math.random() * 15;
-      const x = Math.cos(angle) * radius;
-      const z = Math.sin(angle) * radius;
-
-      const tree = new THREE.Group();
-      // Thân cây
-      const trunkGeo = new THREE.CylinderGeometry(0.3, 0.5, 3.2, 6);
-      const trunk = new THREE.Mesh(trunkGeo, trunkMat);
-      trunk.position.y = 1.6;
-      tree.add(trunk);
-
-      // Tán cây low-poly
-      const foliageGeo = new THREE.DodecahedronGeometry(2.0, 1);
-      const leaves = new THREE.Mesh(foliageGeo, i % 2 === 0 ? leavesMat1 : leavesMat2);
-      leaves.position.y = 3.6;
-      tree.add(leaves);
-
-      tree.position.set(x, 0, z);
-      tree.scale.setScalar(0.8 + Math.random() * 0.5);
-      this.envGroup.add(tree);
-      this.trees.push(tree);
-    }
-
-    // Các khóm hoa dại rực rỡ
-    const flowerColors = [0xff4d4d, 0xffd11a, 0xffffff, 0xff80bf];
-    for (let i = 0; i < 40; i++) {
-      const flowerGeo = new THREE.DodecahedronGeometry(0.18, 0);
-      const flowerMat = new THREE.MeshBasicMaterial({
-        color: flowerColors[Math.floor(Math.random() * flowerColors.length)]
-      });
-      const flower = new THREE.Mesh(flowerGeo, flowerMat);
-      flower.position.set(
-        (Math.random() - 0.5) * 45,
-        0.1,
-        (Math.random() - 0.5) * 45
-      );
-      this.envGroup.add(flower);
-    }
-  }
-
-  setupFloatingPollen() {
-    // Hạt phấn hoa / hoa bồ công anh lơ lửng trong gió nắng
-    const count = 180;
+  setupSunlightMist() {
+    // Hạt bụi nắng và bọt biển lấp lánh trong làn gió nhiệt đới
+    const count = 260;
     const pos = new Float32Array(count * 3);
     for (let i = 0; i < count * 3; i += 3) {
-      pos[i] = (Math.random() - 0.5) * 60;
-      pos[i + 1] = Math.random() * 12;
-      pos[i + 2] = (Math.random() - 0.5) * 60;
+      pos[i] = (Math.random() - 0.5) * 70;
+      pos[i + 1] = (Math.random() - 0.5) * 35;
+      pos[i + 2] = -12 + Math.random() * 20;
     }
 
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
 
     const mat = new THREE.PointsMaterial({
-      color: 0xfff4b8, // Ánh nắng vàng bồ công anh
-      size: 0.16,
+      color: 0xffffff,
+      size: 0.18,
       transparent: true,
-      opacity: 0.75
+      opacity: 0.85
     });
 
-    this.pollenParticles = new THREE.Points(geo, mat);
-    this.scene.add(this.pollenParticles);
+    this.particles = new THREE.Points(geo, mat);
+    this.scene.add(this.particles);
   }
 
   update(delta, time, scrollY = 0) {
-    // 0. Parallax nhẹ nhàng cho địa hình nền đồi cỏ phía sau
-    this.envGroup.position.y = -4.8 + (scrollY * 0.12);
+    // 1. Chuyển động Parallax MẠNH MẼ cho bức tranh bãi biển khi scroll (Yêu cầu 4)
+    if (this.beachMesh) {
+      // Khi scroll, bức tranh trôi theo trục Y với hệ số 0.48 rõ rệt
+      this.beachMesh.position.y = this.baseBackdropY + (scrollY * 0.48);
+      // Hiệu ứng lướt ngang nhẹ nhàng theo nhịp cuộn tạo cảm giác sóng dập dềnh
+      this.beachMesh.position.x = this.baseBackdropX + Math.sin(scrollY * 0.08) * 1.6;
+      // Nhịp thở bồng bềnh tự nhiên của sóng biển
+      const waveBreath = 1.0 + Math.sin(time * 0.6) * 0.012;
+      this.beachMesh.scale.set(waveBreath, waveBreath, 1);
+    }
 
-    // 1. Mây trôi êm ả
+    // 2. Mây trôi êm ả ngang trời và chuyển động Parallax theo độ cao khi scroll
     for (const cloud of this.clouds) {
       cloud.mesh.position.x += cloud.speed * delta;
-      if (cloud.mesh.position.x > 55) {
-        cloud.mesh.position.x = -55;
+      if (cloud.mesh.position.x > 65) {
+        cloud.mesh.position.x = -65;
       }
+      // Parallax dọc theo cuộn chuột cho từng đám mây
+      cloud.mesh.position.y = cloud.baseY + (scrollY * cloud.parallaxFactor);
     }
 
-    // 2. Cây rung rinh theo gió
-    for (let i = 0; i < this.trees.length; i++) {
-      this.trees[i].rotation.z = Math.sin(time * 1.5 + i) * 0.03;
-    }
-
-    // 3. Phấn hoa bay bồng bềnh
-    if (this.pollenParticles) {
-      const positions = this.pollenParticles.geometry.attributes.position.array;
+    // 3. Hạt bụi nắng và bọt sóng lơ lửng trong gió
+    if (this.particles) {
+      const positions = this.particles.geometry.attributes.position.array;
       for (let i = 1; i < positions.length; i += 3) {
-        positions[i] -= delta * 0.4;
-        if (positions[i] < 0) positions[i] = 12;
+        positions[i] -= delta * 0.5;
+        if (positions[i] < -15) positions[i] = 18;
       }
-      this.pollenParticles.geometry.attributes.position.needsUpdate = true;
-      this.pollenParticles.rotation.y = time * 0.015;
+      this.particles.geometry.attributes.position.needsUpdate = true;
+      this.particles.rotation.y = time * 0.02;
     }
   }
 }
