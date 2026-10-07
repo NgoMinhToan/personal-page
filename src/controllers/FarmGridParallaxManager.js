@@ -205,15 +205,21 @@ export class FarmGridParallaxManager {
     this.activeBoard = board;
     board.isDetailMode = true;
 
-    // Lưu lại vị trí trước khi zoom
-    board.preZoomPos = board.position.clone();
-    board.preZoomRot = board.rotation.clone();
+    // Chuyển texture sang chế độ chi tiết độ nét cao với đầy đủ nội dung & nút bấm
+    board.switchToDetailMode();
 
-    // 1. Phóng to bảng ra chính giữa màn hình với góc nhìn cận cảnh
+    // 1. Phóng to chiếc bảng này ra chính giữa lấp đầy màn hình (Seamless Fullscreen Focus)
     gsap.to(board.position, {
       x: 0,
       y: 0,
-      z: 4.2,
+      z: 6.8,
+      duration: 0.65,
+      ease: 'power3.out'
+    });
+    gsap.to(board.scale, {
+      x: 1.62,
+      y: 1.62,
+      z: 1.0,
       duration: 0.65,
       ease: 'power3.out'
     });
@@ -225,24 +231,29 @@ export class FarmGridParallaxManager {
       ease: 'power3.out'
     });
 
-    // 2. Làm mờ nhẹ các bảng khác
+    // 2. Ẩn hoàn toàn tất cả các bảng khác (không hiện thêm bất kỳ bảng nào khác)
     this.boards.forEach((b) => {
       if (b !== board) {
-        gsap.to(b.position, {
-          z: -4.0,
-          duration: 0.5,
-          ease: 'power2.out'
+        gsap.to(b.scale, {
+          x: 0.001,
+          y: 0.001,
+          z: 0.001,
+          duration: 0.35,
+          ease: 'power2.in',
+          onComplete: () => {
+            if (this.isDetailMode) b.visible = false;
+          }
         });
       }
     });
 
-    // 3. Nếu có model tương ứng, đẩy model ra vị trí phụ cận đẹp mắt
+    // 3. Nếu có model tương ứng, đẩy model sang cạnh bên để phụ họa
     if (board.associatedModel) {
       board.associatedModel.preZoomPos = board.associatedModel.position.clone();
       gsap.to(board.associatedModel.position, {
-        x: -4.2,
+        x: -4.8,
         y: 0,
-        z: 1.0,
+        z: -1.0,
         duration: 0.65,
         ease: 'power3.out'
       });
@@ -265,20 +276,38 @@ export class FarmGridParallaxManager {
       y: targetY,
       z: board.baseZ,
       duration: 0.55,
+      ease: 'power3.inOut'
+    });
+    gsap.to(board.scale, {
+      x: 1.0,
+      y: 1.0,
+      z: 1.0,
+      duration: 0.55,
       ease: 'power3.inOut',
       onComplete: () => {
+        board.switchToSummaryMode();
         board.isDetailMode = false;
         this.isDetailMode = false;
         this.activeBoard = null;
       }
     });
 
-    // 2. Đưa các bảng khác trở lại độ sâu bình thường
+    // 2. Hiện lại toàn bộ các bảng trong lưới 2x2
     this.boards.forEach((b) => {
       if (b !== board) {
+        b.visible = true;
+        gsap.to(b.scale, {
+          x: 1.0,
+          y: 1.0,
+          z: 1.0,
+          duration: 0.5,
+          delay: 0.15,
+          ease: 'power2.out'
+        });
         gsap.to(b.position, {
           z: b.baseZ,
           duration: 0.5,
+          delay: 0.15,
           ease: 'power2.out'
         });
       }

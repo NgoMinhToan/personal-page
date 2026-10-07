@@ -4,7 +4,6 @@ import { Lighting } from './core/Lighting.js';
 import { FarmEnvironment } from './core/FarmEnvironment.js';
 import { FarmGridParallaxManager } from './controllers/FarmGridParallaxManager.js';
 import { FarmInteractionManager } from './controllers/FarmInteractionManager.js';
-import { FarmDetailModal } from './ui/FarmDetailModal.js';
 import { FarmHUD } from './ui/FarmHUD.js';
 import { portfolioData } from './data/portfolioData.js';
 
@@ -18,39 +17,21 @@ export const environment = new FarmEnvironment(sceneManager.scene);
 const skillsMap = new Map(portfolioData.skills.map((s) => [s.id, s]));
 
 // 3. UI Containers
-const farmModalEl = document.getElementById('farm-modal');
 const farmHudEl = document.getElementById('farm-hud');
+const farmModalEl = document.getElementById('farm-modal');
+if (farmModalEl) farmModalEl.style.display = 'none';
 
-// 4. Khởi tạo Modal Chi Tiết Dự Án (Có nút Quay Về Lưới 2x2 to rõ ràng)
-export const detailModal = new FarmDetailModal(farmModalEl, {
-  skillsMap,
-  onBack: () => {
-    gridManager.returnToGrid();
-  }
-});
-
-// 5. Khởi tạo Bộ Quản lý Lưới 2x2 & Parallax Chiều Sâu 3D
+// 4. Khởi tạo Bộ Quản lý Lưới 2x2 & Parallax Chiều Sâu 3D
 export const gridManager = new FarmGridParallaxManager(
   sceneManager.scene,
   sceneManager.camera,
-  portfolioData.projects,
-  {
-    onSelectProject: (project) => {
-      detailModal.show(project);
-    },
-    onReturnGrid: () => {
-      detailModal.hide();
-    }
-  }
+  portfolioData.projects
 );
 
-// 6. Khởi tạo Bộ tương tác Raycaster (Hover sáng bảng & Click mở chi tiết)
+// 5. Khởi tạo Bộ tương tác Raycaster (Hover sáng bảng, Click phóng to lấp đầy màn hình, bấm nút ngay trên bảng)
 export const interactionManager = new FarmInteractionManager(
   sceneManager.camera,
-  gridManager.boards,
-  (clickedBoard) => {
-    gridManager.focusOnBoard(clickedBoard);
-  }
+  gridManager
 );
 
 // 7. Khởi tạo Farm HUD (Logo, Bộ lọc Kỹ Năng, Đã bỏ số page bên dưới)
