@@ -49,6 +49,15 @@ assert(typeof swimmer.userData.update === 'function', 'Swimmer must have update 
 swimmer.userData.update(1.0);
 assert(!Number.isNaN(swimmer.position.y), 'Swimmer Y position must not be NaN');
 
+// Test 4b: Swimmer preserves baseY when position.y is assigned externally
+const placedSwimmer = BeachAssetBuilder.createSwimmer({ ringColor: 0x3b82f6 });
+placedSwimmer.position.set(10, -4.8, -16);
+placedSwimmer.userData.update(1.0);
+assert(
+  Math.abs(placedSwimmer.position.y - (-4.8)) < 0.3,
+  `Swimmer position.y should stay near -4.8, got ${placedSwimmer.position.y}`
+);
+
 // Test 5: createKidsOnBeach (Kids, Sandcastle, Umbrella, Beachball)
 const decor = BeachAssetBuilder.createKidsOnBeach();
 assert(decor instanceof THREE.Group, 'Beach decor must be a THREE.Group');

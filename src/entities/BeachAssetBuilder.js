@@ -361,10 +361,13 @@ export class BeachAssetBuilder {
       group.add(armMesh);
     }
 
-    const baseY = group.position.y;
+    let baseY = options.baseY !== undefined ? options.baseY : null;
     const phaseOffset = options.phaseOffset || Math.random() * Math.PI * 2;
 
     group.userData.update = (time) => {
+      if (baseY === null) {
+        baseY = group.position.y;
+      }
       group.position.y = baseY + Math.sin(time * 2.0 + phaseOffset) * 0.16;
       group.rotation.z = Math.sin(time * 1.5 + phaseOffset) * 0.08;
     };

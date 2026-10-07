@@ -76,4 +76,36 @@ assert(deltaFG > deltaMG, 'Foreground must move faster than Midground');
 assert(deltaMG > deltaBG, 'Midground must move faster than Background');
 assert(!Number.isNaN(deltaFG) && !Number.isNaN(deltaMG) && !Number.isNaN(deltaBG), 'Parallax deltas must not be NaN');
 
+// Test 11: Mist particles stay strictly in background (world Z < 5.0)
+env.update(0.016, 25.0, 0);
+const mistPositions = env.particles.geometry.attributes.position.array;
+for (let i = 2; i < mistPositions.length; i += 3) {
+  const worldZ = mistPositions[i] + env.particles.position.z + env.backgroundGroup.position.z;
+  assert(worldZ < 5.0, `Mist particle world Z must remain in background (< 5.0), got ${worldZ}`);
+}
+
+// Test 12: Cloud 3-tier distribution
+const lowTier = env.clouds.filter(c => c.tier === 'low');
+const midTier = env.clouds.filter(c => c.tier === 'mid');
+const highTier = env.clouds.filter(c => c.tier === 'high');
+assert(lowTier.length === 14, `Low tier must have 14 clouds, got ${lowTier.length}`);
+assert(midTier.length === 16, `Mid tier must have 16 clouds, got ${midTier.length}`);
+assert(highTier.length === 12, `High tier must have 12 clouds, got ${highTier.length}`);
+
+// Test 13: Cloud effective world Y movement matches parallaxFactor
+const c0 = env.clouds[0];
+const y0Before = c0.mesh.position.y + env.backgroundGroup.position.y;
+env.update(0.016, 1.0, 100);
+const y0After = c0.mesh.position.y + env.backgroundGroup.position.y;
+const effectiveDelta = y0After - y0Before;
+assert(
+  Math.abs(effectiveDelta - (100 * c0.parallaxFactor)) < 0.01,
+  `Effective cloud movement should be ${100 * c0.parallaxFactor}, got ${effectiveDelta}`
+);
+
+// Test 14: dispose() method lifecycle
+assert(typeof env.dispose === 'function', 'env.dispose must be a function');
+env.dispose();
+assert(mockScene.children.length === 0, 'mockScene should have no children after dispose');
+
 console.log('✓ Full Asset Population and Parallax Engine tests passed!');

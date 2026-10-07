@@ -63,36 +63,48 @@ export class BeachEnvironment {
     const sharedPuffGeo1 = new THREE.DodecahedronGeometry(1.6, 0);
     const sharedPuffGeo2 = new THREE.DodecahedronGeometry(2.3, 0);
 
-    // 42 cụm mây đa tầng độ sâu
-    for (let i = 0; i < 42; i++) {
-      const cloudGroup = new THREE.Group();
-      const numPuffs = 5 + Math.floor(Math.random() * 4);
+    // 42 cụm mây phân bố theo 3 tầng độ sâu theo đúng Spec 4.3:
+    // Tầng thấp (14 cụm): Z [-14, -20], speed 1.8, parallax 0.35
+    // Tầng trung (16 cụm): Z [-22, -28], speed 1.2, parallax 0.22
+    // Tầng cao (12 cụm): Z [-30, -38], speed 0.7, parallax 0.10
+    const tiers = [
+      { name: 'low', count: 14, minZ: -20, maxZ: -14, speed: 1.8, parallaxFactor: 0.35 },
+      { name: 'mid', count: 16, minZ: -28, maxZ: -22, speed: 1.2, parallaxFactor: 0.22 },
+      { name: 'high', count: 12, minZ: -38, maxZ: -30, speed: 0.7, parallaxFactor: 0.10 }
+    ];
 
-      for (let j = 0; j < numPuffs; j++) {
-        const geo = j % 2 === 0 ? sharedPuffGeo1 : sharedPuffGeo2;
-        const puff = new THREE.Mesh(geo, cloudMat);
-        puff.position.set(
-          (j - numPuffs / 2) * 1.5 + (Math.random() - 0.5) * 0.7,
-          (Math.random() - 0.5) * 0.8,
-          (Math.random() - 0.5) * 0.8
-        );
-        cloudGroup.add(puff);
+    for (const tier of tiers) {
+      for (let i = 0; i < tier.count; i++) {
+        const cloudGroup = new THREE.Group();
+        const numPuffs = 5 + Math.floor(Math.random() * 4);
+
+        for (let j = 0; j < numPuffs; j++) {
+          const geo = j % 2 === 0 ? sharedPuffGeo1 : sharedPuffGeo2;
+          const puff = new THREE.Mesh(geo, cloudMat);
+          puff.position.set(
+            (j - numPuffs / 2) * 1.5 + (Math.random() - 0.5) * 0.7,
+            (Math.random() - 0.5) * 0.8,
+            (Math.random() - 0.5) * 0.8
+          );
+          cloudGroup.add(puff);
+        }
+
+        const baseX = (Math.random() - 0.5) * 140;
+        const baseY = 7 + Math.random() * 24;
+        const baseZ = tier.minZ + Math.random() * (tier.maxZ - tier.minZ);
+
+        cloudGroup.position.set(baseX, baseY, baseZ);
+        this.backgroundGroup.add(cloudGroup);
+
+        this.clouds.push({
+          mesh: cloudGroup,
+          baseX: baseX,
+          baseY: baseY,
+          speed: tier.speed * (0.9 + Math.random() * 0.2),
+          parallaxFactor: tier.parallaxFactor,
+          tier: tier.name
+        });
       }
-
-      const baseX = (Math.random() - 0.5) * 140;
-      const baseY = 7 + Math.random() * 24;
-      const baseZ = -14 - Math.random() * 22; // Độ sâu từ -14 đến -36
-
-      cloudGroup.position.set(baseX, baseY, baseZ);
-      this.backgroundGroup.add(cloudGroup);
-
-      this.clouds.push({
-        mesh: cloudGroup,
-        baseX: baseX,
-        baseY: baseY,
-        speed: 1.1 + Math.random() * 1.8,
-        parallaxFactor: 0.12 + Math.random() * 0.18
-      });
     }
   }
 
@@ -100,9 +112,9 @@ export class BeachEnvironment {
     const count = 320;
     const pos = new Float32Array(count * 3);
     for (let i = 0; i < count * 3; i += 3) {
-      pos[i] = (Math.random() - 0.5) * 80;
-      pos[i + 1] = (Math.random() - 0.5) * 40;
-      pos[i + 2] = -10 + Math.random() * 24;
+      pos[i] = (Math.random() - 0.5) * 70;
+      pos[i + 1] = (Math.random() - 0.5) * 36;
+      pos[i + 2] = (Math.random() - 0.5) * 6; // Local Z in [-3, 3] xung quanh vị trí Z = -22
     }
 
     const geo = new THREE.BufferGeometry();
@@ -116,6 +128,8 @@ export class BeachEnvironment {
     });
 
     this.particles = new THREE.Points(geo, mat);
+    // Đặt hạt bụi nắng ở tầng sâu Z = -22, tránh hoàn toàn góc nhìn camera (Z = 11.5)
+    this.particles.position.set(0, 5, -22);
     this.backgroundGroup.add(this.particles);
   }
 
@@ -240,7 +254,7 @@ export class BeachEnvironment {
     this.midgroundGroup.add(this.surfer);
   }
 
-  updateWaves(time) {
+  updateWaves(time = 0) {
     if (!this.waterGeometry) return;
     const pos = this.waterGeometry.attributes.position;
     const timeOffset = time * 1.8;
@@ -263,7 +277,7 @@ export class BeachEnvironment {
     pos.needsUpdate = true;
   }
 
-  update(delta, time, scrollY = 0) {
+  update(delta, time = 0, scrollY = 0) {
     // 1. Phản hồi Parallax 3 tầng theo nhịp cuộn chuột
     this.foregroundGroup.position.y = this.baseFG_Y + (scrollY * 0.55);
     this.foregroundGroup.position.x = Math.sin(scrollY * 0.04) * 0.7;
@@ -292,24 +306,63 @@ export class BeachEnvironment {
       if (palm.userData.update) palm.userData.update(time, i * 0.6);
     }
 
-    // 4. Mây trôi êm ả ngang trời & Parallax cuộn chuột
+    // 4. Mây trôi êm ả ngang trời & Parallax cuộn chuột (loại bỏ compound parallax bằng cách trừ 0.12 từ backgroundGroup)
     for (const cloud of this.clouds) {
       cloud.mesh.position.x += cloud.speed * delta;
       if (cloud.mesh.position.x > 75) {
         cloud.mesh.position.x = -75;
+        cloud.baseY = 7 + Math.random() * 24;
       }
-      cloud.mesh.position.y = cloud.baseY + (scrollY * cloud.parallaxFactor);
+      cloud.mesh.position.y = cloud.baseY + (scrollY * (cloud.parallaxFactor - 0.12));
     }
 
-    // 5. Hạt bụi nắng lơ lửng
+    // 5. Hạt bụi nắng lơ lửng nhẹ nhàng ở tầng sâu (Z ~ -22), không xoay vào trường nhìn camera
     if (this.particles) {
       const positions = this.particles.geometry.attributes.position.array;
       for (let i = 1; i < positions.length; i += 3) {
         positions[i] -= delta * 0.45;
-        if (positions[i] < -16) positions[i] = 19;
+        if (positions[i] < -18) positions[i] = 18;
       }
       this.particles.geometry.attributes.position.needsUpdate = true;
-      this.particles.rotation.y = time * 0.02;
+      this.particles.rotation.z = Math.sin(time * 0.15) * 0.03;
+      this.particles.rotation.y = Math.sin(time * 0.2) * 0.05;
     }
+  }
+
+  /**
+   * Giải phóng tài nguyên Three.js sạch sẽ khi unmount
+   */
+  dispose() {
+    const disposeGroup = (group) => {
+      if (!group) return;
+      group.traverse((obj) => {
+        if (obj.geometry) {
+          obj.geometry.dispose();
+        }
+        if (obj.material) {
+          if (Array.isArray(obj.material)) {
+            obj.material.forEach((m) => m.dispose());
+          } else {
+            obj.material.dispose();
+          }
+        }
+      });
+      group.clear();
+    };
+
+    disposeGroup(this.foregroundGroup);
+    disposeGroup(this.midgroundGroup);
+    disposeGroup(this.backgroundGroup);
+
+    this.scene.remove(this.foregroundGroup);
+    this.scene.remove(this.midgroundGroup);
+    this.scene.remove(this.backgroundGroup);
+
+    this.clouds = [];
+    this.palmTrees = [];
+    this.monkeys = [];
+    this.swimmers = [];
+    this.surfer = null;
+    this.particles = null;
   }
 }
