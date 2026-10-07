@@ -2,3 +2,5 @@ node_modules
 dist
 .superpowers
 .system_generated
+.agents
+.playwright-mcp
