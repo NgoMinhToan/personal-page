@@ -3,41 +3,32 @@ import * as THREE from 'three';
 export class Lighting {
   constructor(scene) {
     this.scene = scene;
-    this.spotlights = [];
     this.setup();
   }
 
   setup() {
-    // 1. Ambient Light - soft museum / studio fill
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+    // 1. Ánh sáng vòm trời & mặt đất (Hemisphere Light)
+    // Bầu trời xanh pastel rực rỡ + mặt đất cỏ xanh phản xạ
+    const hemiLight = new THREE.HemisphereLight(0x87ceeb, 0x556b2f, 1.3);
+    hemiLight.position.set(0, 30, 0);
+    this.scene.add(hemiLight);
+
+    // 2. Ánh nắng mặt trời vàng ấm (Warm Sunlight)
+    const sunLight = new THREE.DirectionalLight(0xfff5d6, 1.8);
+    sunLight.position.set(16, 26, 14);
+    sunLight.castShadow = true;
+    sunLight.shadow.mapSize.width = 2048;
+    sunLight.shadow.mapSize.height = 2048;
+    sunLight.shadow.camera.near = 0.5;
+    sunLight.shadow.camera.far = 80;
+    sunLight.shadow.camera.left = -25;
+    sunLight.shadow.camera.right = 25;
+    sunLight.shadow.camera.top = 25;
+    sunLight.shadow.camera.bottom = -25;
+    this.scene.add(sunLight);
+
+    // 3. Ánh sáng môi trường nhẹ bổ sung
+    const ambientLight = new THREE.AmbientLight(0xffeedb, 0.45);
     this.scene.add(ambientLight);
-
-    // 2. Key Directional Light - crisp comic shadows and highlights
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.6);
-    keyLight.position.set(6, 12, 14);
-    this.scene.add(keyLight);
-
-    // 3. Rim / Cyber Manga Tint Light - subtle back highlight
-    const rimLight = new THREE.DirectionalLight(0x38bdf8, 0.6);
-    rimLight.position.set(-8, -6, 6);
-    this.scene.add(rimLight);
-  }
-
-  createSpotlight(targetPosition) {
-    const spot = new THREE.SpotLight(0xffffff, 1.2);
-    spot.position.set(targetPosition.x, targetPosition.y + 3, targetPosition.z + 8);
-    spot.angle = Math.PI / 4;
-    spot.penumbra = 0.8;
-    spot.decay = 1.2;
-    spot.distance = 30;
-
-    const targetObj = new THREE.Object3D();
-    targetObj.position.copy(targetPosition);
-    this.scene.add(targetObj);
-    spot.target = targetObj;
-
-    this.scene.add(spot);
-    this.spotlights.push({ spot, targetObj });
-    return spot;
   }
 }

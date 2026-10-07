@@ -1,141 +1,130 @@
+import * as THREE from 'three';
 import { SceneManager } from './core/SceneManager.js';
 import { Lighting } from './core/Lighting.js';
-import { MangaEnvironment } from './core/MangaEnvironment.js';
-import { SnapScrollManager } from './controllers/SnapScrollManager.js';
-import { InteractionManager } from './controllers/InteractionManager.js';
-import { TransitionController } from './controllers/TransitionController.js';
-import { DetailOverlay } from './ui/DetailOverlay.js';
-import { SkillFilterBar } from './ui/SkillFilterBar.js';
+import { FarmEnvironment } from './core/FarmEnvironment.js';
+import { FarmSignpost } from './entities/FarmSignpost.js';
+import { FarmCameraController } from './controllers/FarmCameraController.js';
+import { FarmInteractionManager } from './controllers/FarmInteractionManager.js';
+import { FarmDetailModal } from './ui/FarmDetailModal.js';
+import { FarmHUD } from './ui/FarmHUD.js';
 import { portfolioData } from './data/portfolioData.js';
-import gsap from 'gsap';
 
 // 1. Khởi tạo Three.js Engine
 const canvas = document.getElementById('webgl-canvas');
-const sceneManager = new SceneManager(canvas);
-const lighting = new Lighting(sceneManager.scene);
-const environment = new MangaEnvironment(sceneManager.scene);
+export const sceneManager = new SceneManager(canvas);
+export const lighting = new Lighting(sceneManager.scene);
+export const environment = new FarmEnvironment(sceneManager.scene);
 
-// 2. Map kỹ năng để tra cứu nhanh màu sắc & tên
+// 2. Map kỹ năng
 const skillsMap = new Map(portfolioData.skills.map(s => [s.id, s]));
 
-// 3. UI DOM Elements
-const pageIndicatorEl = document.getElementById('page-indicator');
-const detailOverlayEl = document.getElementById('detail-overlay');
-const skillFilterContainerEl = document.getElementById('skill-filter-container');
+// 3. Bố trí các trạm nông trại dọc theo cung đường thơ mộng
+const landmarkCoordinates = [
+  { x: -7.5, y: -1.0, z: 7.0 },   // 0: Cối xay gió
+  { x: -0.5, y: -1.0, z: 2.5 },   // 1: Vườn táo
+  { x: 6.5,  y: -1.0, z: -1.8 },  // 2: Luống rau củ quả
+  { x: 1.0,  y: -1.0, z: -7.0 },  // 3: Giếng nước cổ tích
+  { x: -6.5, y: -1.0, z: -11.5 }, // 4: Xe kéo chở rơm
+  { x: 2.5,  y: -1.0, z: -16.5 }  // 5: Lửa trại & Lều
+];
 
-// 4. Khởi tạo SnapScrollManager (Lưới 2x2)
-const scrollManager = new SnapScrollManager(
-  sceneManager.scene,
+const signpostsGroup = new THREE.Group();
+sceneManager.scene.add(signpostsGroup);
+
+export const signposts = [];
+
+portfolioData.projects.forEach((project, index) => {
+  const coord = landmarkCoordinates[index] || {
+    x: (index - 2) * 4,
+    y: -1.0,
+    z: -index * 4
+  };
+
+  const sign = new FarmSignpost(project, index);
+  sign.position.set(coord.x, coord.y, coord.z);
+  signpostsGroup.add(sign);
+  signposts.push(sign);
+});
+
+// 4. UI Containers
+const farmModalEl = document.getElementById('farm-modal');
+const farmHudEl = document.getElementById('farm-hud');
+
+// 5. Khởi tạo Modal Chi Tiết (Có nút quay lui to rõ ràng)
+export const detailModal = new FarmDetailModal(farmModalEl, {
+  skillsMap,
+  onBack: () => {
+    cameraController.returnToOverview();
+  }
+});
+
+// 6. Khởi tạo Bộ điều khiển Camera Nông trại Mượt mà (Continuous Lerp Scroll)
+export const cameraController = new FarmCameraController(
   sceneManager.camera,
-  portfolioData.projects,
+  signposts,
   {
-    onPageChange: (current, total) => {
-      if (pageIndicatorEl) {
-        pageIndicatorEl.textContent = `PAGE 0${current + 1} / 0${total}`;
-      }
+    onSelectLandmark: (project) => {
+      detailModal.show(project);
+    },
+    onReturnOverview: () => {
+      detailModal.hide();
     }
   }
 );
 
-// 5. Khởi tạo DetailOverlay
-let currentDetailIndex = 0;
-
-const detailOverlay = new DetailOverlay(detailOverlayEl, {
-  skillsMap,
-  onBack: () => {
-    transitionController.shrinkToGrid();
+// 7. Khởi tạo Bộ bắt tương tác Chuột (Raycaster Hover & Click)
+export const interactionManager = new FarmInteractionManager(
+  sceneManager.camera,
+  signposts,
+  (clickedSign) => {
+    const index = signposts.indexOf(clickedSign);
+    cameraController.focusOnLandmark(index);
   }
-});
+);
 
-// 6. Khởi tạo TransitionController (Phóng to / Thu nhỏ & Zig-Zag)
-const transitionController = new TransitionController(scrollManager, {
-  onDetailOpen: (project, boardSide) => {
-    // Nếu bảng 3D nằm bên Trái, nội dung nằm bên Phải; và ngược lại
-    const contentSide = boardSide === 'left' ? 'right' : 'left';
-    detailOverlay.show(project, contentSide);
-  },
-  onDetailClose: () => {
-    detailOverlay.hide();
-  }
-});
-
-// 7. Khởi tạo InteractionManager (Raycasting Hover & Click)
-const interactionManager = new InteractionManager(sceneManager.camera, scrollManager, {
-  onSelectBoard: (board) => {
-    currentDetailIndex = scrollManager.currentPage * 4 + board.index;
-    // Quy luật Zig-Zag: Dự án chẵn bảng ở Trái (nội dung ở Phải), Dự án lẻ bảng ở Phải (nội dung ở Trái)
-    const boardSide = (currentDetailIndex % 2 === 0) ? 'left' : 'right';
-    transitionController.expandToDetail(board, boardSide);
-  }
-});
-
-// 8. Hỗ trợ Cuộn khớp Zig-Zag ở Chế độ Chi tiết (Detail Snap Scroll)
-let isDetailScrollThrottled = false;
-
-window.addEventListener('wheel', (e) => {
-  if (!scrollManager.isDetailMode || isDetailScrollThrottled) return;
-  const projects = scrollManager.filteredProjects;
-  if (projects.length <= 1) return;
-
-  const threshold = 40;
-  if (Math.abs(e.deltaY) > threshold) {
-    isDetailScrollThrottled = true;
-    setTimeout(() => { isDetailScrollThrottled = false; }, 450);
-
-    if (e.deltaY > 0) {
-      // Sang dự án tiếp theo
-      currentDetailIndex = (currentDetailIndex + 1) % projects.length;
-    } else {
-      // Quay về dự án trước
-      currentDetailIndex = (currentDetailIndex - 1 + projects.length) % projects.length;
-    }
-
-    const nextProject = projects[currentDetailIndex];
-    const newBoardSide = (currentDetailIndex % 2 === 0) ? 'left' : 'right';
-
-    // Cập nhật bảng 3D và đảo vị trí Zig-Zag
-    if (transitionController.activeBoard) {
-      transitionController.activeBoard.updateProject(nextProject);
-      const targetX = newBoardSide === 'left' ? -3.0 : 3.0;
-      const targetRotY = newBoardSide === 'left' ? 0.08 : -0.08;
-
-      gsap.to(transitionController.activeBoard.position, {
-        x: targetX,
-        duration: 0.4,
-        ease: 'power2.inOut'
-      });
-      gsap.to(transitionController.activeBoard.rotation, {
-        y: targetRotY,
-        duration: 0.4,
-        ease: 'power2.out'
-      });
-
-    }
-
-    // Cập nhật nội dung sang bên còn lại
-    const contentSide = newBoardSide === 'left' ? 'right' : 'left';
-    detailOverlay.show(nextProject, contentSide);
-  }
-}, { passive: true });
-
-// 9. Khởi tạo Thanh Lọc Kỹ năng (Skill Filter Bar)
-const skillFilterBar = new SkillFilterBar(
-  skillFilterContainerEl,
+// 8. Khởi tạo Farm HUD (Bỏ hoàn toàn số page bên dưới)
+export const farmHUD = new FarmHUD(
+  farmHudEl,
   portfolioData.skills,
   portfolioData.projects,
   {
-    onFilterChange: (skillId) => {
-      if (scrollManager.isDetailMode) {
-        transitionController.shrinkToGrid();
+    onSelectSkill: (skillId) => {
+      if (cameraController.isDetailMode) {
+        cameraController.returnToOverview();
       }
-      scrollManager.filterBySkill(skillId);
+
+      // Khi lọc theo skill, highlight các công trình khớp và focus vào công trình đầu tiên
+      signposts.forEach((sign, idx) => {
+        const matches = skillId === 'all' || (sign.project.skills && sign.project.skills.includes(skillId));
+        sign.visible = matches;
+        if (matches && (skillId !== 'all')) {
+          sign.setHover(true);
+        } else {
+          sign.setHover(false);
+        }
+      });
+
+      // Lướt camera tới công trình đầu tiên khớp với skill
+      const firstMatchingIndex = signposts.findIndex(s => s.visible);
+      if (firstMatchingIndex !== -1) {
+        cameraController.targetProgress = firstMatchingIndex;
+      }
     }
   }
 );
 
-// 10. Đăng ký Animation Loop
+// 9. Vòng lặp Render 60fps
 sceneManager.onUpdate((delta, time) => {
+  // Cập nhật môi trường (mây trôi, phấn hoa bay, cây đung đưa)
   environment.update(delta, time);
+
+  // Cập nhật hoạt ảnh lơ lửng và động cơ 3D nông trại
+  signposts.forEach((sign) => {
+    sign.update(delta, time);
+  });
+
+  // Cập nhật chuyển động camera lướt êm ái
+  cameraController.update(delta);
 });
 
-console.log('⚡ Manga 3D Portfolio initialized successfully!');
+console.log('🌾 Creative Farm 3D Portfolio initialized successfully!');

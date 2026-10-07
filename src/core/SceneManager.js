@@ -5,36 +5,38 @@ export class SceneManager {
     this.canvas = canvas;
     this.callbacks = [];
 
-    // 1. Scene
+    // 1. Scene với bầu trời xanh nắng ấm
     this.scene = new THREE.Scene();
+    this.scene.background = new THREE.Color(0xa0e1ed);
 
-    // 2. Camera
+    // 2. Camera góc phối cảnh rộng rãi
     this.camera = new THREE.PerspectiveCamera(
       45,
       window.innerWidth / window.innerHeight,
       0.1,
       1000
     );
-    this.camera.position.set(0, 0, 15);
+    this.camera.position.set(0, 7.5, 18);
     this.scene.add(this.camera);
 
-    // 3. Renderer
+    // 3. Renderer tối ưu bóng đổ và màu sắc chân thực
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
       antialias: true,
-      alpha: true,
       powerPreference: 'high-performance'
     });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.1;
+    this.renderer.toneMappingExposure = 1.15;
 
     // 4. Resize listener
     this.onResize = this.onResize.bind(this);
     window.addEventListener('resize', this.onResize);
 
-    // 5. Animation loop
+    // 5. Render loop
     this.clock = new THREE.Clock();
     this.isPaused = false;
     this.render = this.render.bind(this);
