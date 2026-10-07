@@ -26,6 +26,8 @@ export class BeachEnvironment {
     this.setupSun();
     this.setupAbundantClouds();
     this.setupSunlightMist();
+    this.setupTerrains();
+    this.setupOceanWaveMesh();
   }
 
   setupSkyAndFog() {
@@ -109,7 +111,85 @@ export class BeachEnvironment {
     this.backgroundGroup.add(this.particles);
   }
 
+  setupTerrains() {
+    // 1. Sườn đồi nhiệt đới xanh mướt bên Trái
+    const hillGeo = new THREE.PlaneGeometry(24, 28, 12, 12);
+    // Tạo độ mấp mô tự nhiên cho đồi
+    const hPos = hillGeo.attributes.position;
+    for (let i = 0; i < hPos.count; i++) {
+      const vx = hPos.getX(i);
+      const vy = hPos.getY(i);
+      const bump = Math.sin(vx * 0.3) * Math.cos(vy * 0.3) * 1.2;
+      hPos.setZ(i, bump);
+    }
+    hillGeo.computeVertexNormals();
+
+    const hillMat = new THREE.MeshLambertMaterial({
+      color: 0x16a34a,
+      flatShading: true
+    });
+    this.hillMesh = new THREE.Mesh(hillGeo, hillMat);
+    this.hillMesh.rotation.x = -Math.PI / 2.3;
+    this.hillMesh.position.set(-14, -4.5, -16);
+    this.midgroundGroup.add(this.hillMesh);
+
+    // 2. Bãi cát vàng thoai thoải chuyển tiếp ra biển
+    const sandGeo = new THREE.PlaneGeometry(16, 28, 10, 10);
+    const sandMat = new THREE.MeshLambertMaterial({
+      color: 0xfde047,
+      flatShading: true
+    });
+    this.sandMesh = new THREE.Mesh(sandGeo, sandMat);
+    this.sandMesh.rotation.x = -Math.PI / 2.3;
+    this.sandMesh.position.set(1.5, -4.8, -15);
+    this.foregroundGroup.add(this.sandMesh);
+  }
+
+  setupOceanWaveMesh() {
+    // Lưới mặt nước đại dương xanh ngọc bích
+    this.waterGeometry = new THREE.PlaneGeometry(46, 36, 64, 48);
+    this.waterMaterial = new THREE.MeshStandardMaterial({
+      color: 0x06b6d4,
+      roughness: 0.18,
+      metalness: 0.08,
+      flatShading: true,
+      transparent: true,
+      opacity: 0.94
+    });
+
+    this.waterMesh = new THREE.Mesh(this.waterGeometry, this.waterMaterial);
+    this.waterMesh.rotation.x = -Math.PI / 2.25;
+    this.waterMesh.position.set(15, -4.9, -17);
+    this.midgroundGroup.add(this.waterMesh);
+  }
+
+  updateWaves(time) {
+    if (!this.waterGeometry) return;
+    const pos = this.waterGeometry.attributes.position;
+    const timeOffset = time * 1.8;
+
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i);
+      const y = pos.getY(i);
+
+      // Độ dập dềnh giảm dần khi tiến sát bờ cát
+      const shoreDamp = Math.min(1.0, Math.max(0.12, (x + 16) / 22));
+
+      const wave = (
+        Math.sin(x * 0.35 + timeOffset) * 0.45 +
+        Math.cos(y * 0.28 + timeOffset * 0.8) * 0.35 +
+        Math.sin((x + y) * 0.15 + timeOffset * 1.2) * 0.22
+      ) * shoreDamp;
+
+      pos.setZ(i, wave);
+    }
+    pos.needsUpdate = true;
+  }
+
   update(delta, time, scrollY = 0) {
+    // Cập nhật sóng biển động
+    this.updateWaves(time);
+
     // 1. Mây trôi êm ả ngang trời & Parallax cuộn chuột
     for (const cloud of this.clouds) {
       cloud.mesh.position.x += cloud.speed * delta;
