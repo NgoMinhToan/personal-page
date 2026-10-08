@@ -10,6 +10,7 @@ const html = hud.generateHTML();
 assert(typeof html === 'string', 'generateHTML must return string');
 assert(html.includes('stationery-ruler-hud'), 'Must have stationery-ruler-hud container');
 assert(html.includes('ruler-ticks'), 'Must have ruler measurement ticks');
+assert(html.includes('DỰ ÁN'), 'Must have title "DỰ ÁN"');
 assert(html.includes('data-skill="all"'), 'Must have "Tất cả" filter badge');
 
 console.log('✓ StationeryHUD tests passed!');

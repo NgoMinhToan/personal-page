@@ -37,8 +37,7 @@ export class StationeryHUD {
 
         <div class="hud-center-title">
           <span class="doodle-brand-icon">✏️</span>
-          <span class="brand-text">PORTFOLIO NOTEBOOK</span>
-          <span class="sub-text">SÁNG TẠO & KỸ NĂNG</span>
+          <h1 class="brand-text">DỰ ÁN</h1>
         </div>
 
         <nav class="hud-skills-nav" aria-label="Bộ lọc kỹ năng">
