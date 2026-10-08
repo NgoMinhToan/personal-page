@@ -62,6 +62,7 @@ html, body {
   z-index: 50;
   pointer-events: none;
   overflow: visible;
+  background: linear-gradient(180deg, var(--paper-ivory) 45%, rgba(250, 247, 240, 0) 100%);
 }
 
 .clouds-svg {

@@ -50,6 +50,7 @@ if (streamContainer) {
 const hudContainer = document.getElementById('stationery-hud-container');
 export const stationeryHUD = new StationeryHUD({
   skills: portfolioData.skills,
+  projects: portfolioData.projects,
   onSelectSkill: (skillId) => {
     scrapbookStream.filterBySkill(skillId);
   }

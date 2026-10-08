@@ -11,7 +11,8 @@ export class ScrapbookStream {
     const washiColors = ['washi-blue', 'washi-yellow', 'washi-orange', 'washi-green'];
     const washiClass = washiColors[index % washiColors.length];
 
-    const tagsHtml = (project.tags || [])
+    const tags = project.skills || project.tags || [];
+    const tagsHtml = tags
       .map(tag => `<span class="skill-sticker">#${tag}</span>`)
       .join(' ');
 
@@ -86,7 +87,10 @@ export class ScrapbookStream {
     if (!skillId || skillId === 'all') {
       this.activeProjects = [...this.projects];
     } else {
-      this.activeProjects = this.projects.filter(p => p.tags && p.tags.includes(skillId));
+      this.activeProjects = this.projects.filter(p => {
+        const list = p.skills || p.tags || [];
+        return list.includes(skillId);
+      });
     }
     if (this.container) {
       this.container.innerHTML = this.generateHTML();

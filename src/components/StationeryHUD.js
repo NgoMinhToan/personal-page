@@ -1,15 +1,29 @@
 export class StationeryHUD {
   constructor(options = {}) {
     this.skills = options.skills || [];
+    this.projects = options.projects || [];
     this.activeSkill = 'all';
     this.onSelectSkill = options.onSelectSkill || (() => {});
     this.container = null;
   }
 
+  getSkillCount(skillId) {
+    if (!this.projects || !this.projects.length) return null;
+    return this.projects.filter(p => {
+      const list = p.skills || p.tags || [];
+      return list.includes(skillId);
+    }).length;
+  }
+
   generateHTML() {
+    const totalCount = this.projects.length || 16;
     const badgesHtml = [
-      { id: 'all', name: 'TẤT CẢ (16)' },
-      ...this.skills.map(s => ({ id: s.id, name: `${s.name} (${s.count})` }))
+      { id: 'all', name: `TẤT CẢ (${totalCount})` },
+      ...this.skills.map(s => {
+        const count = s.count !== undefined ? s.count : this.getSkillCount(s.id);
+        const countLabel = count !== null ? ` (${count})` : '';
+        return { id: s.id, name: `${s.name}${countLabel}` };
+      })
     ].map(s => `
       <button class="stationery-pill-btn ${this.activeSkill === s.id ? 'active' : ''}" data-skill="${s.id}">
         ${s.name}
