@@ -1,60 +1,61 @@
-import * as THREE from 'three';
-import { SceneManager } from './core/SceneManager.js';
-import { Lighting } from './core/Lighting.js';
-import { BeachEnvironment } from './core/BeachEnvironment.js';
-import { FarmGridParallaxManager } from './controllers/FarmGridParallaxManager.js';
-import { FarmInteractionManager } from './controllers/FarmInteractionManager.js';
-import { FarmHUD } from './ui/FarmHUD.js';
 import { portfolioData } from './data/portfolioData.js';
+import { StickyClouds } from './components/StickyClouds.js';
+import { StickyBeach } from './components/StickyBeach.js';
+import { SideFlanks } from './components/SideFlanks.js';
+import { ScrapbookStream } from './components/ScrapbookStream.js';
+import { JournalModal } from './components/JournalModal.js';
+import { StationeryHUD } from './components/StationeryHUD.js';
 
-// 1. Khởi tạo Three.js Engine
-const canvas = document.getElementById('webgl-canvas');
-export const sceneManager = new SceneManager(canvas);
-export const lighting = new Lighting(sceneManager.scene);
-export const environment = new BeachEnvironment(sceneManager.scene);
+// 1. Mây & Mặt Trời Cố Định Đỉnh (Sticky Top Clouds)
+const cloudsContainer = document.getElementById('sticky-clouds-container');
+export const stickyClouds = new StickyClouds();
+if (cloudsContainer) {
+  stickyClouds.render(cloudsContainer);
+}
 
-// 2. Map kỹ năng công nghệ
-const skillsMap = new Map(portfolioData.skills.map((s) => [s.id, s]));
+// 2. Bờ Biển & Sóng Biển Cố Định Đáy (Sticky Bottom Beach)
+const beachContainer = document.getElementById('sticky-beach-container');
+export const stickyBeach = new StickyBeach();
+if (beachContainer) {
+  stickyBeach.render(beachContainer);
+}
 
-// 3. UI Containers
-const farmHudEl = document.getElementById('farm-hud');
-const farmModalEl = document.getElementById('farm-modal');
-if (farmModalEl) farmModalEl.style.display = 'none';
+// 3. Sườn Minh Họa 2 Bên Tương Tác Cuộn Cảnh (Side Flanks)
+const flanksContainer = document.getElementById('side-flanks-container');
+export const sideFlanks = new SideFlanks();
+if (flanksContainer) {
+  sideFlanks.render(flanksContainer);
+  window.addEventListener('scroll', () => {
+    sideFlanks.onScroll(window.scrollY || window.pageYOffset || 0);
+  }, { passive: true });
+}
 
-// 4. Khởi tạo Bộ Quản lý Lưới 2x2 & Parallax Chiều Sâu 3D
-export const gridManager = new FarmGridParallaxManager(
-  sceneManager.scene,
-  sceneManager.camera,
-  portfolioData.projects
-);
-// Ẩn nhóm model nông trại cũ để hiển thị trọn vẹn bức tranh bãi biển nhiệt đới 3D procedural
-gridManager.modelsGroup.visible = false;
+// 4. Modal Sổ Tay Hai Trang Chi Tiết Dự Án (Journal Spread Modal)
+const modalContainer = document.getElementById('journal-modal-container');
+export const journalModal = new JournalModal({ container: modalContainer });
 
-// 5. Khởi tạo Bộ tương tác Raycaster (Hover sáng bảng, Click phóng to lấp đầy màn hình, bấm nút ngay trên bảng)
-export const interactionManager = new FarmInteractionManager(
-  sceneManager.camera,
-  gridManager
-);
-
-// 7. Khởi tạo Farm HUD (Logo, Bộ lọc Kỹ Năng, Đã bỏ số page bên dưới)
-export const farmHUD = new FarmHUD(
-  farmHudEl,
-  portfolioData.skills,
-  portfolioData.projects,
-  {
-    onSelectSkill: (skillId) => {
-      gridManager.scrollToSkill(skillId);
-    }
+// 5. Dòng Sổ Tay Dự Án Scrapbook Cột Giữa (Scrapbook Stream)
+const streamContainer = document.getElementById('scrapbook-stream-container');
+export const scrapbookStream = new ScrapbookStream({
+  projects: portfolioData.projects,
+  onSelectProject: (project) => {
+    journalModal.open(project);
   }
-);
-
-// 8. Vòng lặp Render 60fps
-sceneManager.onUpdate((delta, time) => {
-  // Cập nhật môi trường (mây trôi, phấn hoa bay, parallax đồi cỏ)
-  environment.update(delta, time, gridManager.currentScrollY);
-
-  // Cập nhật lưới 2x2, scroll nội suy mượt và 16 model 3D parallax chiều sâu
-  gridManager.update(delta, time);
 });
+if (streamContainer) {
+  scrapbookStream.render(streamContainer);
+}
 
-console.log('🏖️ Tropical Beach 3D Portfolio (Procedural Environment & Multi-layer Parallax) initialized successfully!');
+// 6. Thanh Thước Kẻ HUD & Bộ Lọc Kỹ Năng (Stationery Ruler HUD)
+const hudContainer = document.getElementById('stationery-hud-container');
+export const stationeryHUD = new StationeryHUD({
+  skills: portfolioData.skills,
+  onSelectSkill: (skillId) => {
+    scrapbookStream.filterBySkill(skillId);
+  }
+});
+if (hudContainer) {
+  stationeryHUD.render(hudContainer);
+}
+
+console.log('🎨 2D Paper Craft & Doodle Portfolio initialized successfully!');

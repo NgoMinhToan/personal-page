@@ -3,26 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Creative Farm 3D — Không Gian Dự Án Nông Trại Sáng Tạo</title>
-  <meta name="description" content="Trang web portfolio cá nhân 3D phong cách nông trại sống động xây dựng bằng Three.js">
+  <title>Paper Craft & Doodle Portfolio — Nhật Ký Sáng Tạo & Kỹ Năng</title>
+  <meta name="description" content="Portfolio cá nhân phong cách nghệ thuật thủ công giấy 2D kết hợp doodle sketch Kokuyo Stationery & Doodle Shooter.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Patrick+Hand&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/src/style.css">
 </head>
 <body>
-  <!-- 3D Three.js Full-Screen Canvas -->
-  <canvas id="webgl-canvas"></canvas>
+  <!-- 1. Mây & Mặt Trời Cố Định Đỉnh (Sticky Top Clouds) -->
+  <div id="sticky-clouds-container"></div>
 
-  <!-- Interactive DOM Overlay -->
+  <!-- 2. Sườn Minh Họa Cuộn Cảnh 2 Bên (Side Flanks) -->
+  <div id="side-flanks-container"></div>
+
+  <!-- 3. Khu vực Nội dung Scrapbook Chính -->
   <div id="app">
-    <!-- Top & Skill Navigation -->
-    <div id="farm-hud"></div>
+    <!-- Thanh thước kẻ chia vạch lọc kỹ năng (Stationery Ruler HUD) -->
+    <div id="stationery-hud-container"></div>
 
-    <!-- Farm Detail Modal (With Prominent Back Handle) -->
-    <div id="farm-modal" class="farm-modal-container hidden" aria-hidden="true"></div>
+    <!-- Dòng Sổ Tay Dự Án (Scrapbook Stream) -->
+    <main id="scrapbook-stream-container" class="scrapbook-main-stream"></main>
   </div>
+
+  <!-- 4. Bờ Biển & Sóng Cố Định Đáy (Sticky Bottom Beach) -->
+  <div id="sticky-beach-container"></div>
+
+  <!-- 5. Modal Sổ Tay Mở Rộng 2 Trang (Journal Spread Modal) -->
+  <div id="journal-modal-container" class="journal-modal-container hidden" aria-hidden="true"></div>
 
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>
+

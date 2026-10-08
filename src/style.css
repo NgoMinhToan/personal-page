@@ -655,6 +655,111 @@ html, body {
   }
 }
 
+/* ===== THANH THƯỚC KẺ HUD & BỘ LỌC KỸ NĂNG (STATIONERY RULER HUD) ===== */
+.stationery-ruler-hud {
+  position: sticky;
+  top: 70px;
+  z-index: 40;
+  max-width: 860px;
+  margin: 70px auto 32px auto;
+  background: #fef9c3;
+  border: 2.5px solid var(--doodle-ink);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(45, 55, 72, 0.12), 2px 4px 0px var(--doodle-ink);
+  padding: 16px 24px;
+}
+
+/* Vạch chia độ mm/cm trên thước kẻ gỗ */
+.ruler-ticks {
+  position: absolute;
+  top: 0;
+  left: 12px;
+  right: 12px;
+  height: 8px;
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--doodle-ink) 0,
+    var(--doodle-ink) 1px,
+    transparent 1px,
+    transparent 10px
+  );
+  opacity: 0.6;
+}
+
+.hud-center-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 4px;
+  margin-bottom: 14px;
+}
+
+.doodle-brand-icon {
+  font-size: 1.5rem;
+}
+
+.brand-text {
+  font-family: var(--font-hand);
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--doodle-ink);
+}
+
+.sub-text {
+  font-size: 0.75rem;
+  font-weight: 800;
+  background: var(--doodle-ink);
+  color: #fef9c3;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+.hud-skills-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.stationery-pill-btn {
+  font-family: var(--font-hand);
+  font-size: 1.05rem;
+  font-weight: 700;
+  padding: 5px 14px;
+  background: #ffffff;
+  color: var(--doodle-ink);
+  border: 1.5px solid var(--doodle-ink);
+  border-radius: 20px;
+  cursor: pointer;
+  box-shadow: 1px 2px 0px var(--doodle-ink);
+  transition: all 0.15s ease;
+}
+
+.stationery-pill-btn:hover {
+  background: #fde047;
+  transform: translate(-1px, -1px);
+  box-shadow: 2px 3px 0px var(--doodle-ink);
+}
+
+.stationery-pill-btn.active {
+  background: var(--doodle-ink);
+  color: #ffffff;
+  box-shadow: none;
+  transform: translateY(1px);
+}
+
+/* Khung chính chứa dòng scrapbook */
+.scrapbook-main-stream {
+  position: relative;
+  z-index: 20;
+  padding-bottom: 160px; /* Chừa không gian cho bờ biển cố định đáy */
+  min-height: 100vh;
+}
+
+
 
 
 
