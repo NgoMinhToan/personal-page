@@ -347,4 +347,259 @@ html, body {
   margin-bottom: 12px;
 }
 
+/* ===== MODAL SỔ TAY MỞ TOÀN MÀN HÌNH (JOURNAL SPREAD MODAL) ===== */
+.journal-modal-container {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.journal-modal-container.hidden {
+  display: none !important;
+}
+
+.journal-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(45, 55, 72, 0.45);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+}
+
+.journal-spread-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 980px;
+  animation: journalUnfold 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes journalUnfold {
+  0% { transform: scale(0.9) rotate(-1deg); opacity: 0; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* Nút kẹp giấy đóng sổ */
+.paper-clip-close {
+  position: absolute;
+  top: -18px;
+  right: 20px;
+  font-family: var(--font-hand);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--doodle-ink);
+  background: #fef08a;
+  border: 2px solid var(--doodle-ink);
+  padding: 6px 16px;
+  border-radius: 6px;
+  box-shadow: 2px 3px 0px var(--doodle-ink);
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.15s ease;
+}
+
+.paper-clip-close:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 4px 0px var(--doodle-ink);
+  background: #fde047;
+}
+
+/* Bố cục trang sổ tay đôi (Two-page Spread) */
+.journal-two-page-spread {
+  display: grid;
+  grid-template-columns: 1fr 14px 1.15fr;
+  background-color: #ffffff;
+  /* Lớp kẻ ô ly sổ tay */
+  background-image:
+    linear-gradient(#f1eee7 1px, transparent 1px),
+    linear-gradient(90deg, #f1eee7 1px, transparent 1px);
+  background-size: 22px 22px;
+  border: 3px solid var(--doodle-ink);
+  border-radius: 12px;
+  box-shadow: var(--shadow-spread);
+  min-height: 540px;
+  overflow: hidden;
+}
+
+/* Gáy sổ ngăn cách 2 trang */
+.journal-spine-divider {
+  background: linear-gradient(90deg, rgba(0,0,0,0.06), rgba(0,0,0,0.18), rgba(0,0,0,0.06));
+  border-left: 1px dashed rgba(45, 55, 72, 0.3);
+  border-right: 1px dashed rgba(45, 55, 72, 0.3);
+}
+
+.journal-page {
+  padding: 36px 32px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Trang Trái: Khung ảnh dán washi tape 4 góc */
+.taped-photo-frame {
+  position: relative;
+  background: #ffffff;
+  border: 2px solid var(--doodle-ink);
+  padding: 8px;
+  border-radius: 4px;
+  box-shadow: 0 4px 10px rgba(45, 55, 72, 0.1);
+  margin-top: 10px;
+  margin-bottom: 12px;
+}
+
+.journal-showcase-img {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+  border-radius: 2px;
+  display: block;
+}
+
+.doodle-image-placeholder {
+  width: 100%;
+  height: 280px;
+  background: var(--paper-kraft);
+  border: 2px dashed var(--doodle-ink);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+  color: var(--doodle-ink);
+}
+
+.placeholder-doodle {
+  font-size: 3rem;
+  margin-bottom: 8px;
+}
+
+.placeholder-caption {
+  font-family: var(--font-hand);
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.photo-caption-handwriting {
+  font-family: var(--font-hand);
+  font-size: 1.1rem;
+  color: #64748b;
+  text-align: center;
+}
+
+/* Washi tape 4 góc khung ảnh */
+.washi-tape-corner {
+  position: absolute;
+  width: 44px;
+  height: 18px;
+  background: var(--washi-blue);
+  border: 1px dashed rgba(45, 55, 72, 0.4);
+  z-index: 3;
+}
+.corner-tl { top: -6px; left: -6px; transform: rotate(-35deg); }
+.corner-tr { top: -6px; right: -6px; transform: rotate(35deg); background: var(--washi-yellow); }
+.corner-bl { bottom: -6px; left: -6px; transform: rotate(35deg); background: var(--washi-green); }
+.corner-br { bottom: -6px; right: -6px; transform: rotate(-35deg); background: var(--washi-orange); }
+
+/* Trang Phải: Chi tiết kỹ thuật & Tính năng */
+.journal-tag-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #c2410c;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.journal-project-title {
+  font-size: 1.85rem;
+  font-weight: 900;
+  color: var(--doodle-ink);
+  margin-bottom: 14px;
+  line-height: 1.25;
+}
+
+.journal-project-story {
+  font-size: 1rem;
+  line-height: 1.65;
+  color: #334155;
+  margin-bottom: 20px;
+}
+
+.journal-section-heading {
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #475569;
+  margin-bottom: 8px;
+}
+
+.journal-features-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+
+.journal-features-list li {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #1e293b;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+/* Con dấu nút hành động Demo / GitHub */
+.journal-action-stamps {
+  display: flex;
+  gap: 14px;
+  margin-top: auto;
+}
+
+.stamp-link-btn {
+  font-family: var(--font-hand);
+  font-size: 1.15rem;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 2px 3px 0px var(--doodle-ink);
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.demo-stamp {
+  color: #ffffff;
+  background: #0284c7;
+  border: 2px solid var(--doodle-ink);
+}
+
+.demo-stamp:hover {
+  background: #0369a1;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 4px 0px var(--doodle-ink);
+}
+
+.github-stamp {
+  color: var(--doodle-ink);
+  background: var(--paper-kraft);
+  border: 2px solid var(--doodle-ink);
+}
+
+.github-stamp:hover {
+  background: #e2dac9;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 4px 0px var(--doodle-ink);
+}
+
+
 
