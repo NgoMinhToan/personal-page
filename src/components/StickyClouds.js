@@ -16,7 +16,7 @@ export class StickyClouds {
           </defs>
 
           <!-- Mây tầng 1 (Viễn cảnh kem sáng - Ink Double-Line Sketch) -->
-          <g class="sticky-cloud cloud-bg" transform="translate(40, -10)">
+          <g class="sticky-cloud cloud-bg cloud-bg-1" transform="translate(40, -10)">
             <!-- Nền màu nước loang nhẹ -->
             <path d="M0,52 Q40,12 90,32 Q140,6 200,32 Q260,16 310,52 Q330,76 290,92 L20,92 Q0,85 0,52 Z" fill="#ffffff" opacity="0.95"/>
             <!-- Nét viền chính mực than chì -->
@@ -41,7 +41,7 @@ export class StickyClouds {
             </g>
           </g>
 
-          <g class="sticky-cloud cloud-bg" transform="translate(820, -15)">
+          <g class="sticky-cloud cloud-bg cloud-bg-2" transform="translate(820, -15)">
             <!-- Nền màu nước loang nhẹ -->
             <path d="M0,56 Q50,16 110,36 Q170,11 240,36 Q300,19 360,56 Q380,82 340,96 L30,96 Q5,90 0,56 Z" fill="#ffffff" opacity="0.95"/>
             <!-- Nét viền chính mực than chì -->

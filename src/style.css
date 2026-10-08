@@ -72,8 +72,11 @@ html, body {
 }
 
 /* Hoạt ảnh lơ lửng bồng bềnh mây tại chỗ (Idle Floating) */
-.cloud-bg {
-  animation: cloudBobBg 9s ease-in-out infinite alternate;
+.cloud-bg-1 {
+  animation: cloudBobBg1 9s ease-in-out infinite alternate;
+}
+.cloud-bg-2 {
+  animation: cloudBobBg2 10s ease-in-out infinite alternate;
 }
 .cloud-main-1 {
   animation: cloudBob1 7s ease-in-out infinite alternate;
@@ -89,9 +92,13 @@ html, body {
   transform-origin: 1320px 42px;
 }
 
-@keyframes cloudBobBg {
+@keyframes cloudBobBg1 {
   0% { transform: translate(40px, -10px); }
   100% { transform: translate(40px, -4px); }
+}
+@keyframes cloudBobBg2 {
+  0% { transform: translate(820px, -15px); }
+  100% { transform: translate(820px, -9px); }
 }
 @keyframes cloudBob1 {
   0% { transform: translate(180px, 5px); }
@@ -297,10 +304,11 @@ html, body {
   border-color: #1e293b;
 }
 
+.paper-project-card:hover .project-sketch-badge-icon:hover,
 .project-sketch-badge-icon:hover {
-  transform: rotate(0deg) scale(1.15) !important;
-  box-shadow: 2px 5px 10px rgba(30, 41, 59, 0.2) !important;
-  border-color: #1e293b !important;
+  transform: rotate(0deg) scale(1.15);
+  box-shadow: 2px 5px 10px rgba(30, 41, 59, 0.2);
+  border-color: #1e293b;
 }
 
 .project-sketch-badge-icon svg {

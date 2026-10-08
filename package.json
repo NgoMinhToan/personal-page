@@ -9,7 +9,6 @@
     "test": "node --test src/components/*.test.js"
   },
   "dependencies": {
-    "three": "^0.170.0",
     "gsap": "^3.12.5"
   },
   "devDependencies": {
