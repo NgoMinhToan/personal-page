@@ -1,21 +1,34 @@
-/* ===== COZY 3D FARM DESIGN SYSTEM ===== */
+/* ===== 2D PAPER CRAFT & DOODLE DESIGN SYSTEM (KOKUYO & DOODLE SHOOTER) ===== */
 :root {
-  --farm-green-dark: #1b4332;
-  --farm-green: #2d6a4f;
-  --farm-green-light: #52b788;
-  --farm-green-bright: #74c69d;
-  --farm-gold: #e9c46a;
-  --farm-orange: #f4a261;
-  --farm-red: #e76f51;
-  --farm-wood: #8b5a2b;
-  --farm-wood-dark: #5c3a21;
-  --farm-cream: #fefae0;
-  --farm-sky: #a0e1ed;
-  
+  /* Paper Palette */
+  --paper-ivory: #faf7f0;
+  --paper-kraft: #f4ebd9;
+  --paper-grid: #e2dac9;
+  --beach-sand: #fde047;
+  --ocean-teal: #0284c7;
+  --shallow-blue: #7dd3fc;
+  --tropical-green: #4ade80;
+  --tropical-green-dark: #16a34a;
+  --coral-orange: #fb923c;
+  --coral-red: #f87171;
+  --palm-wood: #854d0e;
+  --monkey-brown: #78350f;
+  --doodle-ink: #2d3748;
+
+  /* Washi Tape Colors */
+  --washi-blue: rgba(125, 211, 252, 0.88);
+  --washi-yellow: rgba(254, 240, 138, 0.88);
+  --washi-orange: rgba(251, 146, 60, 0.88);
+  --washi-green: rgba(74, 222, 128, 0.88);
+
+  /* Typography */
   --font-main: 'Outfit', system-ui, -apple-system, sans-serif;
   --font-hand: 'Patrick Hand', cursive, sans-serif;
-  --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.12);
-  --shadow-wood: 0 6px 0px var(--farm-wood-dark);
+
+  /* Paper Elevation Shadows */
+  --shadow-paper: 0 4px 12px rgba(45, 55, 72, 0.08), 0 1px 3px rgba(45, 55, 72, 0.05);
+  --shadow-paper-hover: 0 12px 28px rgba(45, 55, 72, 0.14), 0 4px 8px rgba(45, 55, 72, 0.08);
+  --shadow-spread: 0 20px 40px rgba(45, 55, 72, 0.25);
 }
 
 * {
@@ -26,359 +39,72 @@
 
 html, body {
   width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: linear-gradient(180deg, #1d75c5 0%, #38bdf8 55%, #7dd3fc 100%);
-  color: var(--farm-green-dark);
+  min-height: 100vh;
+  background-color: var(--paper-ivory);
+  /* Vân giấy Campus kẻ ô ly Nhật Bản */
+  background-image:
+    linear-gradient(var(--paper-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--paper-grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--doodle-ink);
   font-family: var(--font-main);
-  user-select: none;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
-/* Three.js Fullscreen Canvas */
-#webgl-canvas {
+/* Nền mây dán cố định đỉnh màn hình (Sticky Top Clouds) */
+.sticky-clouds-wrapper {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh;
-  z-index: 1;
-  outline: none;
-  touch-action: none;
-}
-
-/* UI Overlay Container */
-#app {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 10;
-  pointer-events: none;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 20px 28px;
-}
-
-/* ===== TOP FARM NAVIGATION ===== */
-.farm-top-nav {
-  pointer-events: auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: rgba(254, 250, 224, 0.92);
-  border: 3px solid var(--farm-wood);
-  border-radius: 20px;
-  padding: 12px 24px;
-  box-shadow: 0 8px 24px rgba(45, 106, 79, 0.15), var(--shadow-wood);
-  backdrop-filter: blur(10px);
-  max-width: 1280px;
-  margin: 0 auto;
-  width: 100%;
-}
-
-.farm-logo {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.farm-logo-icon {
-  font-size: 2.2rem;
-  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
-}
-
-.farm-logo-text {
-  display: flex;
-  flex-direction: column;
-}
-
-.farm-logo-main {
-  font-family: var(--font-hand);
-  font-size: 1.7rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: var(--farm-wood-dark);
-  line-height: 1.1;
-}
-
-.farm-logo-sub {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--farm-green);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.farm-nav-hint {
-  display: flex;
-  gap: 18px;
-  font-size: 0.85rem;
-  color: var(--farm-green-dark);
-  background: rgba(82, 183, 136, 0.18);
-  padding: 8px 18px;
-  border-radius: 999px;
-  border: 1px solid rgba(82, 183, 136, 0.4);
-}
-
-/* ===== SKILL FILTER BAR ===== */
-.farm-skill-bar {
-  pointer-events: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  background: rgba(254, 250, 224, 0.92);
-  border: 3px solid var(--farm-wood);
-  border-radius: 999px;
-  padding: 8px 20px;
-  box-shadow: 0 6px 20px rgba(45, 106, 79, 0.15), 0 4px 0 var(--farm-wood-dark);
-  backdrop-filter: blur(10px);
-  margin: 12px auto 0 auto;
-  max-width: 900px;
-}
-
-.farm-skill-label {
-  font-size: 0.78rem;
-  font-weight: 800;
-  color: var(--farm-wood-dark);
-  letter-spacing: 0.05em;
-}
-
-.farm-pills {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.farm-pill-btn {
-  background: rgba(255, 255, 255, 0.8);
-  border: 2px solid var(--farm-green-light);
-  color: var(--farm-green-dark);
-  font-family: var(--font-main);
-  font-size: 0.82rem;
-  font-weight: 700;
-  padding: 6px 16px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.farm-pill-btn:hover {
-  background: var(--farm-green-light);
-  color: #ffffff;
-  transform: translateY(-2px);
-}
-
-.farm-pill-btn.active {
-  background: var(--farm-green);
-  border-color: var(--farm-green-dark);
-  color: #ffffff;
-  box-shadow: 0 4px 10px rgba(45, 106, 79, 0.35);
-}
-
-/* ===== FARM DETAIL MODAL (WITH PROMINENT BACK HANDLE) ===== */
-.farm-modal-container {
-  pointer-events: auto;
-  position: fixed;
-  inset: 0;
+  height: 110px;
   z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(27, 67, 50, 0.45);
-  backdrop-filter: blur(8px);
-  padding: 24px;
-  transition: opacity 0.35s ease;
-}
-
-.farm-modal-container.hidden {
-  opacity: 0;
   pointer-events: none;
+  overflow: visible;
 }
 
-.farm-modal-card {
-  position: relative;
+.clouds-svg {
   width: 100%;
-  max-width: 680px;
-  background: #fffdf5;
-  border: 4px solid var(--farm-wood);
-  border-radius: 28px;
-  padding: 38px 42px;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25), 0 10px 0 var(--farm-wood-dark);
-  animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  height: 100%;
+  filter: drop-shadow(0 4px 6px rgba(45, 55, 72, 0.06));
 }
 
-@keyframes popIn {
-  from {
-    transform: scale(0.85) translateY(30px);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1) translateY(0);
-    opacity: 1;
-  }
+/* Hoạt ảnh lơ lửng bồng bềnh mây tại chỗ (Idle Floating) */
+.cloud-bg {
+  animation: cloudBobBg 9s ease-in-out infinite alternate;
+}
+.cloud-main-1 {
+  animation: cloudBob1 7s ease-in-out infinite alternate;
+}
+.cloud-main-2 {
+  animation: cloudBob2 8.5s ease-in-out infinite alternate;
+}
+.cloud-main-3 {
+  animation: cloudBob3 7.8s ease-in-out infinite alternate;
+}
+.doodle-sun {
+  animation: sunGlow 5s ease-in-out infinite alternate;
+  transform-origin: 1320px 42px;
 }
 
-/* NÚT QUAY VỀ NÔNG TRẠI TO RÕ RÀNG */
-.btn-farm-back {
-  background: #fef08a;
-  color: #854d0e;
-  border: 3px solid #ca8a04;
-  border-radius: 999px;
-  font-family: var(--font-main);
-  font-size: 0.95rem;
-  font-weight: 800;
-  padding: 10px 22px;
-  cursor: pointer;
-  box-shadow: 0 4px 0 #a16207;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 20px;
-  transition: all 0.15s ease;
+@keyframes cloudBobBg {
+  0% { transform: translate(40px, -10px); }
+  100% { transform: translate(40px, -4px); }
 }
-
-.btn-farm-back:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 0 #a16207;
-  background: #fde047;
+@keyframes cloudBob1 {
+  0% { transform: translate(180px, 5px); }
+  100% { transform: translate(180px, 0px); }
 }
-
-.btn-farm-back:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 #a16207;
+@keyframes cloudBob2 {
+  0% { transform: translate(560px, -5px); }
+  100% { transform: translate(560px, 2px); }
 }
-
-.farm-modal-header {
-  margin-bottom: 18px;
+@keyframes cloudBob3 {
+  0% { transform: translate(1080px, 5px); }
+  100% { transform: translate(1080px, -2px); }
 }
-
-.farm-modal-badge {
-  display: inline-block;
-  background: rgba(82, 183, 136, 0.2);
-  color: var(--farm-green);
-  font-size: 0.85rem;
-  font-weight: 800;
-  padding: 4px 14px;
-  border-radius: 999px;
-  margin-bottom: 8px;
-}
-
-.farm-modal-title {
-  font-family: var(--font-hand);
-  font-size: 2.6rem;
-  font-weight: 700;
-  color: var(--farm-wood-dark);
-  line-height: 1.1;
-}
-
-.farm-modal-desc {
-  font-size: 1.05rem;
-  line-height: 1.65;
-  color: #374151;
-  margin-bottom: 24px;
-}
-
-.farm-skills-section {
-  margin-bottom: 28px;
-}
-
-.farm-skills-label {
-  font-size: 0.8rem;
-  font-weight: 800;
-  color: #6b7280;
-  letter-spacing: 0.05em;
-  margin-bottom: 10px;
-}
-
-.farm-skills-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.farm-skill-tag {
-  font-size: 0.85rem;
-  font-weight: 700;
-  padding: 6px 14px;
-  border-radius: 999px;
-  border: 2px solid;
-}
-
-.farm-modal-actions {
-  display: flex;
-  gap: 16px;
-  border-top: 2px dashed rgba(139, 90, 43, 0.25);
-  padding-top: 24px;
-}
-
-.btn-farm-primary {
-  flex: 1;
-  background: linear-gradient(180deg, #40916c 0%, #2d6a4f 100%);
-  color: #ffffff;
-  font-weight: 800;
-  font-size: 1.05rem;
-  padding: 14px 28px;
-  border: none;
-  border-radius: 14px;
-  box-shadow: 0 5px 0 #1b4332;
-  text-align: center;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  display: block;
-}
-
-.btn-farm-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 7px 0 #1b4332;
-  background: linear-gradient(180deg, #52b788 0%, #40916c 100%);
-}
-
-.btn-farm-primary:active {
-  transform: translateY(3px);
-  box-shadow: 0 2px 0 #1b4332;
-}
-
-.btn-farm-secondary {
-  background: #f3f4f6;
-  color: #374151;
-  font-weight: 700;
-  font-size: 0.95rem;
-  padding: 14px 22px;
-  border: 2px solid #d1d5db;
-  border-radius: 14px;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.btn-farm-secondary:hover {
-  background: #e5e7eb;
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-  #app {
-    padding: 14px;
-  }
-  .farm-top-nav {
-    padding: 10px 16px;
-  }
-  .farm-nav-hint {
-    display: none;
-  }
-  .farm-modal-card {
-    padding: 24px 20px;
-    border-radius: 20px;
-  }
-  .farm-modal-title {
-    font-size: 2.0rem;
-  }
-  .farm-modal-actions {
-    flex-direction: column;
-  }
+@keyframes sunGlow {
+  0% { transform: translate(1320px, 42px) rotate(0deg) scale(1); }
+  100% { transform: translate(1320px, 42px) rotate(4deg) scale(1.03); }
 }
