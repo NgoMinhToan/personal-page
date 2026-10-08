@@ -26,7 +26,7 @@ export class JournalModal {
     ]).map(f => `<li><span class="doodle-bullet">✏️</span> ${f}</li>`).join('\n');
 
     return `
-      <div class="journal-modal-backdrop" id="journal-backdrop">
+      <div class="journal-modal-backdrop" id="journal-backdrop" role="dialog" aria-modal="true" aria-labelledby="journal-title">
         <div class="journal-spread-wrapper">
           <!-- Nút kẹp giấy đóng sổ -->
           <button class="paper-clip-close" id="btn-close-journal" aria-label="Gấp sổ">
@@ -52,7 +52,7 @@ export class JournalModal {
             <!-- Trang Phải: Câu chuyện kỹ thuật, tính năng & nút bấm -->
             <div class="journal-page journal-page-right">
               <span class="journal-tag-label">${project.subtitle || 'Dự án Nổi bật'}</span>
-              <h2 class="journal-project-title">${project.title}</h2>
+              <h2 class="journal-project-title" id="journal-title">${project.title}</h2>
               <p class="journal-project-story">${project.details || project.description}</p>
 
               <h4 class="journal-section-heading">ĐIỂM NỔI BẬT:</h4>
@@ -87,11 +87,19 @@ export class JournalModal {
     this.isOpen = true;
     this.container.innerHTML = this.generateModalHTML(project);
     this.container.classList.remove('hidden');
+    if (typeof this.container.setAttribute === 'function') {
+      this.container.setAttribute('aria-hidden', 'false');
+    }
 
-    const backdrop = this.container.querySelector('#journal-backdrop');
-    const closeBtn = this.container.querySelector('#btn-close-journal');
+    const backdrop = this.container.querySelector ? this.container.querySelector('#journal-backdrop') : null;
+    const closeBtn = this.container.querySelector ? this.container.querySelector('#btn-close-journal') : null;
 
-    if (closeBtn) closeBtn.addEventListener('click', () => this.close());
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => this.close());
+      if (typeof closeBtn.focus === 'function') {
+        closeBtn.focus();
+      }
+    }
     if (backdrop) {
       backdrop.addEventListener('click', (e) => {
         if (e.target === backdrop) this.close();
@@ -105,5 +113,8 @@ export class JournalModal {
     this.activeProject = null;
     this.container.innerHTML = '';
     this.container.classList.add('hidden');
+    if (typeof this.container.setAttribute === 'function') {
+      this.container.setAttribute('aria-hidden', 'true');
+    }
   }
 }

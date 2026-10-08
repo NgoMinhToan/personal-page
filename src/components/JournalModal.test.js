@@ -19,4 +19,27 @@ const projectNoImage = { ...sampleProject, image: null };
 const fallbackHtml = modal.generateModalHTML(projectNoImage);
 assert(fallbackHtml.includes('doodle-image-placeholder'), 'Must provide doodle placeholder when image missing');
 
+// Accessibility test: role="dialog" and aria-modal="true"
+assert(html.includes('role="dialog"'), 'Must have role="dialog"');
+assert(html.includes('aria-modal="true"'), 'Must have aria-modal="true"');
+
+// Accessibility test: aria-hidden toggling on container
+const mockContainer = {
+  innerHTML: '',
+  attributes: { 'aria-hidden': 'true' },
+  classList: {
+    remove: () => {},
+    add: () => {}
+  },
+  setAttribute(k, v) { this.attributes[k] = String(v); },
+  getAttribute(k) { return this.attributes[k]; },
+  querySelector: () => null
+};
+const modalWithContainer = new JournalModal({ container: mockContainer });
+modalWithContainer.open(sampleProject);
+assert.strictEqual(mockContainer.getAttribute('aria-hidden'), 'false', 'Opening modal must set aria-hidden to false');
+modalWithContainer.close();
+assert.strictEqual(mockContainer.getAttribute('aria-hidden'), 'true', 'Closing modal must restore aria-hidden to true');
+
 console.log('✓ JournalModal tests passed!');
+

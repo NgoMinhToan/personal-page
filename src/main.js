@@ -25,8 +25,15 @@ const flanksContainer = document.getElementById('side-flanks-container');
 export const sideFlanks = new SideFlanks();
 if (flanksContainer) {
   sideFlanks.render(flanksContainer);
+  let scrollTicking = false;
   window.addEventListener('scroll', () => {
-    sideFlanks.onScroll(window.scrollY || window.pageYOffset || 0);
+    if (!scrollTicking) {
+      window.requestAnimationFrame(() => {
+        sideFlanks.onScroll(window.scrollY || window.pageYOffset || 0);
+        scrollTicking = false;
+      });
+      scrollTicking = true;
+    }
   }, { passive: true });
 }
 

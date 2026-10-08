@@ -19,4 +19,20 @@ assert.strictEqual(cardCount, 16, `Must render 16 project cards, got ${cardCount
 const emptyHtml = stream.generateHTML([]);
 assert(emptyHtml.includes('scrapbook-empty-state'), 'Must render empty state message when no matches');
 
+// Test event listener single binding
+let listenerCount = 0;
+const mockContainer = {
+  innerHTML: '',
+  addEventListener(event, fn) {
+    if (event === 'click') listenerCount++;
+  }
+};
+const streamWithContainer = new ScrapbookStream({ projects: portfolioData.projects });
+streamWithContainer.render(mockContainer);
+assert.strictEqual(listenerCount, 1, 'Initial render must attach exactly 1 click listener');
+streamWithContainer.filterBySkill('threejs');
+streamWithContainer.filterBySkill('all');
+assert.strictEqual(listenerCount, 1, 'Filtering must NOT attach duplicate click listeners to container');
+
 console.log('✓ ScrapbookStream tests passed!');
+

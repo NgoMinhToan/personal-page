@@ -94,7 +94,6 @@ export class ScrapbookStream {
     }
     if (this.container) {
       this.container.innerHTML = this.generateHTML();
-      this.bindEvents();
     }
   }
 }

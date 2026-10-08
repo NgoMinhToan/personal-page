@@ -16,7 +16,10 @@ assert(html.includes('doodle-swimmer'), 'Must have doodle-swimmer element');
 // Test scroll clamping (Review Focus #5)
 const normalTransform = flanks.calculateParallax(250);
 const negativeTransform = flanks.calculateParallax(-100);
+const extremeTransform = flanks.calculateParallax(99999);
 assert(!Number.isNaN(normalTransform.leftOffset), 'Left offset must not be NaN');
 assert(negativeTransform.leftOffset >= 0, 'Negative scroll must be clamped >= 0');
+assert(extremeTransform.leftOffset <= 1000, 'Extreme positive scroll must be bounded');
 
 console.log('✓ SideFlanks tests passed!');
+

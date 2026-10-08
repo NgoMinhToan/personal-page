@@ -167,13 +167,15 @@ html, body {
 }
 
 /* ===== DÒNG SỔ TAY DỰ ÁN 1 CỘT (CENTER SCRAPBOOK STREAM) ===== */
+#scrapbook-stream-container,
+.scrapbook-main-stream,
 .scrapbook-stream-container {
   width: 100%;
   max-width: 760px;
   margin: 0 auto;
-  padding: 120px 20px 160px;
+  padding: 40px 20px 160px;
   position: relative;
-  z-index: 10;
+  z-index: 20;
 }
 
 .scrapbook-stream {
@@ -611,7 +613,7 @@ html, body {
   pointer-events: none;
   z-index: 15;
   overflow: visible;
-  transition: transform 0.08s ease-out;
+  will-change: transform;
 }
 
 .side-flank-left {
@@ -752,13 +754,98 @@ html, body {
   transform: translateY(1px);
 }
 
-/* Khung chính chứa dòng scrapbook */
-.scrapbook-main-stream {
-  position: relative;
-  z-index: 20;
-  padding-bottom: 160px; /* Chừa không gian cho bờ biển cố định đáy */
-  min-height: 100vh;
+/* ===== TỐI ƯU GIAO DIỆN DI ĐỘNG & RESPONSIVE (< 768px) ===== */
+@media (max-width: 768px) {
+  .stationery-ruler-hud {
+    margin: 80px 12px 20px 12px;
+    padding: 12px 14px;
+    position: relative;
+    top: 0;
+  }
+
+  .brand-text {
+    font-size: 1.3rem;
+  }
+
+  .stationery-pill-btn {
+    font-size: 0.95rem;
+    padding: 4px 10px;
+  }
+
+  #scrapbook-stream-container,
+  .scrapbook-main-stream,
+  .scrapbook-stream-container {
+    padding: 20px 14px 140px;
+  }
+
+  .paper-project-card {
+    padding: 24px 18px 20px;
+  }
+
+  .paper-card-title {
+    font-size: 1.35rem;
+  }
+
+  /* Modal sổ tay xếp chồng 1 cột trên màn hình nhỏ */
+  .journal-modal-backdrop {
+    padding: 12px;
+    align-items: flex-start;
+    overflow-y: auto;
+  }
+
+  .journal-spread-wrapper {
+    margin: 36px auto 24px auto;
+  }
+
+  .journal-two-page-spread {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    overflow: visible;
+  }
+
+  .journal-spine-divider {
+    display: none;
+  }
+
+  .journal-page {
+    padding: 22px 18px;
+  }
+
+  .journal-page-left {
+    padding-bottom: 8px;
+  }
+
+  .journal-page-right {
+    padding-top: 8px;
+  }
+
+  .taped-photo-frame {
+    margin-top: 4px;
+    margin-bottom: 8px;
+  }
+
+  .journal-showcase-img,
+  .doodle-image-placeholder {
+    height: 200px;
+  }
+
+  .journal-project-title {
+    font-size: 1.45rem;
+  }
+
+  .paper-clip-close {
+    top: -24px;
+    right: 6px;
+    font-size: 1rem;
+    padding: 5px 12px;
+  }
+
+  .journal-action-stamps {
+    flex-direction: column;
+    gap: 10px;
+  }
 }
+
 
 
 

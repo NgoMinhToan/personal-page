@@ -5,7 +5,8 @@ export class SideFlanks {
   }
 
   calculateParallax(scrollY) {
-    const clampedY = Math.max(0, scrollY || 0);
+    const maxScroll = 4000;
+    const clampedY = Math.min(maxScroll, Math.max(0, scrollY || 0));
     return {
       leftOffset: clampedY * 0.15,
       rightOffset: clampedY * 0.22,
@@ -110,13 +111,16 @@ export class SideFlanks {
     while (wrapper.firstChild) {
       this.container.appendChild(wrapper.firstChild);
     }
+    this.flankLeft = document.getElementById('flank-left');
+    this.flankRight = document.getElementById('flank-right');
+    this.surfer = document.getElementById('doodle-surfer');
   }
 
   onScroll(scrollY) {
     const { leftOffset, rightOffset, surferTilt } = this.calculateParallax(scrollY);
-    const flankLeft = document.getElementById('flank-left');
-    const flankRight = document.getElementById('flank-right');
-    const surfer = document.getElementById('doodle-surfer');
+    const flankLeft = this.flankLeft || document.getElementById('flank-left');
+    const flankRight = this.flankRight || document.getElementById('flank-right');
+    const surfer = this.surfer || document.getElementById('doodle-surfer');
 
     if (flankLeft) flankLeft.style.transform = `translateY(-${leftOffset}px)`;
     if (flankRight) flankRight.style.transform = `translateY(-${rightOffset}px)`;
