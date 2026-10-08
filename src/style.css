@@ -601,5 +601,60 @@ html, body {
   box-shadow: 3px 4px 0px var(--doodle-ink);
 }
 
+/* ===== SƯỜN MINH HỌA 2D CUỘN CẢNH (SIDE FLANKS) ===== */
+.side-flank {
+  position: fixed;
+  top: 60px;
+  bottom: 80px;
+  width: 200px;
+  pointer-events: none;
+  z-index: 15;
+  overflow: visible;
+  transition: transform 0.08s ease-out;
+}
+
+.side-flank-left {
+  left: 0;
+}
+
+.side-flank-right {
+  right: 0;
+}
+
+.flank-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Hoạt ảnh đu đưa chú khỉ trên cây dừa */
+.doodle-monkey.monkey-1 {
+  transform-origin: 0 0;
+  animation: monkeyWiggle 3s ease-in-out infinite alternate;
+}
+
+@keyframes monkeyWiggle {
+  0% { transform: translate(18px, 140px) rotate(-6deg); }
+  100% { transform: translate(18px, 140px) rotate(8deg); }
+}
+
+.doodle-monkey.monkey-2 {
+  transform-origin: 0 -10px;
+  animation: monkeySwing 2.4s ease-in-out infinite alternate;
+}
+
+@keyframes monkeySwing {
+  0% { transform: translate(25px, 110px) rotate(-14deg); }
+  100% { transform: translate(25px, 110px) rotate(14deg); }
+}
+
+/* Ẩn sườn minh họa trên màn hình nhỏ để ưu tiên trải nghiệm đọc thẻ */
+@media (max-width: 1024px) {
+  .side-flank {
+    display: none !important;
+  }
+}
+
+
 
 
