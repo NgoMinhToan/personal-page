@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { ScrapbookStream, getProjectSketchBadge } from './ScrapbookStream.js';
+import { ScrapbookStream, getProjectSketchBadge, getInkStampHtml } from './ScrapbookStream.js';
 import { portfolioData } from '../data/portfolioData.js';
 
 test('ScrapbookStream renders individual sketch badge for each project', () => {
@@ -73,4 +73,76 @@ test('ScrapbookStream handles event listener single binding', () => {
   streamWithContainer.filterBySkill('threejs');
   streamWithContainer.filterBySkill('all');
   assert.strictEqual(listenerCount, 1, 'Filtering must NOT attach duplicate click listeners to container');
+});
+
+test('ScrapbookStream supports search and vintage ink stamps', () => {
+  // Test getInkStampHtml
+  assert(getInkStampHtml('FEATURED').includes('stamp-featured'));
+  assert(getInkStampHtml('EXPERIMENT').includes('stamp-experiment'));
+  assert(getInkStampHtml('COMPLETED').includes('stamp-completed'));
+  assert.strictEqual(getInkStampHtml(''), '');
+
+  const stream = new ScrapbookStream({ projects: portfolioData.projects });
+  const html = stream.generateHTML();
+
+  // Must render ink stamps and year badges
+  assert(html.includes('ink-stamp'), 'Must render ink-stamp elements');
+  assert(html.includes('project-year-badge'), 'Must render year badge');
+
+  // Test search functionality
+  stream.search('VieNeu');
+  assert(stream.activeProjects.length > 0, 'Must find VieNeu project');
+  assert(stream.activeProjects.some(p => p.id === 'vienue-dubbing-cpu'), 'Must contain vienue-dubbing-cpu');
+
+  // Test search with non-existent query
+  stream.search('NonExistentRandomStringXYZ');
+  assert.strictEqual(stream.activeProjects.length, 0, 'Must return 0 projects for invalid search');
+  const emptyHtml = stream.generateHTML();
+  assert(emptyHtml.includes('scrapbook-empty-state'), 'Must show empty state');
+
+  // Reset search
+  stream.search('');
+  assert.strictEqual(stream.activeProjects.length, 16, 'Reset search must restore 16 projects');
+});
+
+test('ScrapbookStream triggers onSelectProject with card element when clicked', () => {
+  let selected = null;
+  let clickedCard = null;
+  const firstProject = portfolioData.projects[0];
+  const stream = new ScrapbookStream({
+    projects: portfolioData.projects,
+    onSelectProject: (proj, card) => {
+      selected = proj;
+      clickedCard = card;
+    }
+  });
+
+  const mockCard = {
+    getAttribute: (attr) => attr === 'data-project-id' ? firstProject.id : null,
+    closest: (sel) => mockCard
+  };
+
+  const mockTarget = {
+    closest: (sel) => {
+      if (sel === 'a') return null;
+      if (sel === '[data-action="open-detail"]') return mockTarget;
+      if (sel === '.paper-project-card') return mockCard;
+      return null;
+    }
+  };
+
+  let registeredClick = null;
+  const mockContainer = {
+    innerHTML: '',
+    addEventListener: (event, fn) => {
+      if (event === 'click') registeredClick = fn;
+    }
+  };
+
+  stream.render(mockContainer);
+  assert(registeredClick, 'Must register click handler');
+  registeredClick({ target: mockTarget });
+
+  assert.strictEqual(selected.id, firstProject.id, 'Must pass correct project to onSelectProject');
+  assert.strictEqual(clickedCard, mockCard, 'Must pass clicked card element for 3D flip animation');
 });

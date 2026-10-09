@@ -12,5 +12,6 @@ assert(html.includes('stationery-ruler-hud'), 'Must have stationery-ruler-hud co
 assert(html.includes('ruler-ticks'), 'Must have ruler measurement ticks');
 assert(html.includes('DỰ ÁN'), 'Must have title "DỰ ÁN"');
 assert(html.includes('data-skill="all"'), 'Must have "Tất cả" filter badge');
+assert(html.includes('stationery-search-input'), 'Must have instant search input');
 
 console.log('✓ StationeryHUD tests passed!');

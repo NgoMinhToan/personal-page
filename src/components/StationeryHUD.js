@@ -3,7 +3,9 @@ export class StationeryHUD {
     this.skills = options.skills || [];
     this.projects = options.projects || [];
     this.activeSkill = 'all';
+    this.searchQuery = '';
     this.onSelectSkill = options.onSelectSkill || (() => {});
+    this.onSearch = options.onSearch || (() => {});
     this.container = null;
   }
 
@@ -32,7 +34,6 @@ export class StationeryHUD {
 
     return `
       <header class="stationery-ruler-hud">
-        <!-- Vạch chia độ thước kẻ học sinh Kokuyo -->
         <div class="ruler-ticks" aria-hidden="true"></div>
 
         <div class="hud-center-title">
@@ -40,6 +41,22 @@ export class StationeryHUD {
           <h1 class="brand-text">DỰ ÁN</h1>
         </div>
 
+        <!-- Ô Tìm Kiếm Nhanh -->
+        <div class="hud-search-wrapper">
+          <div class="search-input-box">
+            <span class="search-icon-doodle" aria-hidden="true">🔍</span>
+            <input
+              type="text"
+              class="stationery-search-input"
+              placeholder="Tìm kiếm dự án, kỹ năng..."
+              value="${this.searchQuery}"
+              aria-label="Tìm kiếm dự án"
+            />
+            <button class="search-clear-btn ${this.searchQuery ? '' : 'hidden'}" aria-label="Xóa tìm kiếm" title="Xóa">✕</button>
+          </div>
+        </div>
+
+        <!-- Thanh Lọc Theo Kỹ Năng -->
         <nav class="hud-skills-nav" aria-label="Bộ lọc kỹ năng">
           ${badgesHtml}
         </nav>
@@ -55,16 +72,56 @@ export class StationeryHUD {
 
   bindEvents() {
     if (!this.container) return;
+
+    // 1. Bắt sự kiện lọc theo Kỹ Năng
     this.container.addEventListener('click', (e) => {
-      const btn = e.target.closest('.stationery-pill-btn');
-      if (btn) {
-        const skillId = btn.getAttribute('data-skill');
+      const skillBtn = e.target.closest('.stationery-pill-btn');
+      if (skillBtn) {
+        const skillId = skillBtn.getAttribute('data-skill');
         this.activeSkill = skillId;
         this.container.querySelectorAll('.stationery-pill-btn').forEach(b => {
           b.classList.toggle('active', b.getAttribute('data-skill') === skillId);
         });
         this.onSelectSkill(skillId);
+        return;
+      }
+
+      // 2. Bắt sự kiện xóa ô tìm kiếm
+      const clearBtn = e.target.closest('.search-clear-btn');
+      if (clearBtn) {
+        const input = this.container.querySelector('.stationery-search-input');
+        if (input) {
+          input.value = '';
+          this.searchQuery = '';
+          clearBtn.classList.add('hidden');
+          input.focus();
+          this.onSearch('');
+        }
       }
     });
+
+    // 3. Bắt sự kiện gõ tìm kiếm tức thời
+    const searchInput = this.container.querySelector('.stationery-search-input');
+    const clearBtn = this.container.querySelector('.search-clear-btn');
+
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.trim();
+        this.searchQuery = query;
+        if (clearBtn) {
+          clearBtn.classList.toggle('hidden', query.length === 0);
+        }
+        this.onSearch(query);
+      });
+
+      searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          searchInput.value = '';
+          this.searchQuery = '';
+          if (clearBtn) clearBtn.classList.add('hidden');
+          this.onSearch('');
+        }
+      });
+    }
   }
 }

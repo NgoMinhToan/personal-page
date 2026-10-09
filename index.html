@@ -13,14 +13,20 @@
 <body>
   <!-- Khu vực Nội dung Scrapbook Chính -->
   <div id="app">
-    <!-- Thanh thước kẻ chia vạch lọc kỹ năng (Stationery Ruler HUD) -->
+    <!-- Trang Bìa Sổ Tay & Danh Thiếp Giới Thiệu (Hero Cover) -->
+    <header id="hero-cover-container" class="hero-cover-container"></header>
+
+    <!-- Thanh thước kẻ chia vạch lọc kỹ năng & tìm kiếm (Stationery Ruler HUD) -->
     <div id="stationery-hud-container"></div>
 
     <!-- Dòng Sổ Tay Dự Án (Scrapbook Stream) -->
     <main id="scrapbook-stream-container" class="scrapbook-main-stream"></main>
+
+    <!-- Bìa Gấp Cuối Sổ & Phong Bì Liên Hệ (Back Cover Footer) -->
+    <footer id="scrapbook-back-cover-container" class="scrapbook-back-cover-container"></footer>
   </div>
 
-  <!-- Modal Sổ Tay Mở Rộng 2 Trang (Journal Spread Modal) -->
+  <!-- Cửa sổ Sổ Tay Mở Rộng 3D Flip (Journal Modal Layer) -->
   <div id="journal-modal-container" class="journal-modal-container hidden" aria-hidden="true"></div>
 
   <script type="module" src="/src/main.js"></script>

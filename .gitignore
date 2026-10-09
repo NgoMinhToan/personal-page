@@ -4,3 +4,4 @@ dist
 .system_generated
 .agents
 .playwright-mcp
+.dsh-acl

@@ -3,9 +3,14 @@ import { portfolioData } from './portfolioData.js';
 
 console.log('Testing Farm portfolioData schema...');
 
-// Test 1: Must have skills and projects
+// Test 1: Must have skills, projects and author profile
 assert(Array.isArray(portfolioData.skills), 'portfolioData.skills must be an array');
 assert(Array.isArray(portfolioData.projects), 'portfolioData.projects must be an array');
+assert(portfolioData.profile && typeof portfolioData.profile === 'object', 'portfolioData.profile must exist');
+assert(portfolioData.profile.name, 'Profile must have name');
+assert(portfolioData.profile.title, 'Profile must have title');
+assert(Array.isArray(portfolioData.profile.stats), 'Profile stats must be an array');
+assert(Array.isArray(portfolioData.profile.socials), 'Profile socials must be an array');
 assert(portfolioData.skills.length >= 4, 'Must have at least 4 skills');
 assert(portfolioData.projects.length >= 6, 'Must have at least 6 projects');
 
